@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: ecombackend
+    volumes:
+      - pgData:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+
+volumes:
+  pgData:
