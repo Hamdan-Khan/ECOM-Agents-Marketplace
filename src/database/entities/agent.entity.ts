@@ -2,33 +2,64 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-} from "typeorm";
+} from 'typeorm';
+import { OrderEntity } from './order.entity';
+import { SubscriptionEntity } from './subscription.entity';
+import { TokenTransactionEntity } from './token-transaction.entity';
+import { UserEntity } from './user.entity';
 
-@Entity({ name: "agent" })
+export enum AgentCategory {
+  NLP = 'NLP',
+  COMPUTER_VISION = 'COMPUTER_VISION',
+  ANALYTICS = 'ANALYTICS',
+  BOTS = 'BOTS',
+  WORKFLOW_HELPERS = 'WORKFLOW_HELPERS',
+}
+
+@Entity({ name: 'agents' })
 export class AgentEntity {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ length: 100 })
   name: string;
 
-  @Column("text")
+  @Column('text')
   description: string;
 
-  @Column("decimal", { precision: 10, scale: 2, default: 0 })
+  @Column({
+    type: 'enum',
+    enum: AgentCategory,
+  })
+  category: AgentCategory;
+
+  @Column('decimal', { precision: 10, scale: 2 })
   price: number;
 
-  @Column({ default: false })
-  isPublished: boolean;
+  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  subscription_price: number;
 
-  @Column("jsonb", { nullable: true })
-  capabilities: Record<string, any>;
+  @ManyToOne(() => UserEntity, (user) => user.agents)
+  @JoinColumn({ name: 'created_by' })
+  created_by: UserEntity;
+
+  @OneToMany(() => OrderEntity, (order) => order.agent)
+  orders: OrderEntity[];
+
+  @OneToMany(() => SubscriptionEntity, (subscription) => subscription.agent)
+  subscriptions: SubscriptionEntity[];
+
+  @OneToMany(() => TokenTransactionEntity, (transaction) => transaction.agent)
+  token_transactions: TokenTransactionEntity[];
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updated_at: Date;
 }

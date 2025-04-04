@@ -1,6 +1,15 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { config } from 'dotenv';
+import { AdminEntity } from './entities/admin.entity';
 import { AgentEntity } from './entities/agent.entity';
+import { OrderEntity } from './entities/order.entity';
+import { PaymentEntity } from './entities/payment.entity';
+import { SubscriptionEntity } from './entities/subscription.entity';
+import { TokenTransactionEntity } from './entities/token-transaction.entity';
+import { UserEntity } from './entities/user.entity';
+
+config();
 
 @Module({
   imports: [
@@ -11,7 +20,15 @@ import { AgentEntity } from './entities/agent.entity';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [AgentEntity],
+      entities: [
+        AgentEntity,
+        AdminEntity,
+        UserEntity,
+        TokenTransactionEntity,
+        SubscriptionEntity,
+        PaymentEntity,
+        OrderEntity,
+      ],
     }),
   ],
 })
