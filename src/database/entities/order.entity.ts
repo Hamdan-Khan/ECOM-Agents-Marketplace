@@ -6,6 +6,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { AgentEntity } from './agent.entity';
 import { PaymentEntity } from './payment.entity';
@@ -69,6 +70,12 @@ export class OrderEntity {
   @OneToMany(() => TokenTransactionEntity, (transaction) => transaction.order)
   token_transactions: TokenTransactionEntity[];
 
+  @Column()
+  created_by: string;
+
   @CreateDateColumn()
   created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date; //  Required by your OrderResponseDto
 }
