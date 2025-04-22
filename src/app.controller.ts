@@ -10,8 +10,8 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @Get('sui')
-  getALoadOfThis(): string {
-    return this.appService.canIGetaKiss();
+  @Get('test')
+  getTest(): string {
+    return this.appService.getTest();
   }
 }

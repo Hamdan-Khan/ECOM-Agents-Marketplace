@@ -5,7 +5,7 @@ export class AppService {
   getHello(): string {
     return 'Hello World!';
   }
-  canIGetaKiss(): string {
+  getTest(): string {
     return 'RM 4 LIFE';
   }
 }
