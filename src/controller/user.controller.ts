@@ -8,7 +8,9 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
+import { AdminGuard, JwtAuthGuard } from 'src/auth/auth.guard';
 import { User } from '../decorators/user.decorator';
 import {
   CreateUserDto,
@@ -36,7 +38,7 @@ export class UserController {
   }
 
   @Get()
-  // @UseGuards(AdminGuard) // Uncomment when you implement this guard
+  @UseGuards(AdminGuard)
   async findAll(@Query() findUsersDto: FindUsersDto): Promise<{
     items: UserResponseDto[];
     total: number;
@@ -48,13 +50,13 @@ export class UserController {
   }
 
   @Get('profile')
-  // @UseGuards(JwtAuthGuard) // Uncomment when you implement this guard
+  @UseGuards(JwtAuthGuard)
   async getProfile(@User() user): Promise<UserResponseDto> {
     return this.userService.findOne(user.id);
   }
 
   @Get(':id')
-  // @UseGuards(AdminGuard) // Uncomment when you implement this guard
+  @UseGuards(AdminGuard)
   async findOne(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<UserResponseDto> {
@@ -62,7 +64,7 @@ export class UserController {
   }
 
   @Patch(':id')
-  // @UseGuards(JwtAuthGuard) // Uncomment when you implement this guard
+  @UseGuards(JwtAuthGuard)
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -75,7 +77,7 @@ export class UserController {
   }
 
   @Delete(':id')
-  // @UseGuards(AdminGuard) // Uncomment when you implement this guard
+  @UseGuards(AdminGuard)
   async remove(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     return this.userService.remove(id);
   }

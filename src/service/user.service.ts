@@ -131,6 +131,16 @@ export class UserService {
 
     return this.mapToResponseDto(user);
   }
+  async findUserByEmail(email: string) {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { email },
+      });
+      return user;
+    } catch (error) {
+      return null;
+    }
+  }
 
   async update(
     id: string,
