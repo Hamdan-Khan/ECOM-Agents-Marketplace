@@ -1,4 +1,3 @@
-// token-transaction.entity.ts
 import {
   Column,
   CreateDateColumn,
