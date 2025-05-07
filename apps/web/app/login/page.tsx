@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useToast } from "@/hooks/use-toast"
+import { apiPost } from "@/services/api"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -26,47 +27,19 @@ export default function LoginPage() {
     setError("")
 
     try {
-      // In a real implementation, this would call the backend API
-      // For now, we'll simulate a successful login
-
-      // const response = await fetch('http://localhost:5000/api/users/login', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ email, password }),
-      // })
-
-      // if (!response.ok) {
-      //   const data = await response.json()
-      //   throw new Error(data.message || 'Login failed')
-      // }
-
-      // const data = await response.json()
-      // localStorage.setItem('token', data.token)
-      // localStorage.setItem('user', JSON.stringify(data.user))
-
-      // Simulate successful login
-      setTimeout(() => {
-        localStorage.setItem("token", "mock-jwt-token")
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            userId: 1,
-            email,
-            role: email.includes("admin") ? "admin" : "user",
-          }),
-        )
-
-        toast({
-          title: "Login Successful",
-          description: "Welcome back to AI Exchange!",
-        })
-
-        router.push("/dashboard")
-      }, 1000)
+      const data = await apiPost<{ user: any; token: string }>(
+        "/users/login",
+        { email, password }
+      )
+      localStorage.setItem("token", data.token)
+      localStorage.setItem("user", JSON.stringify(data.user))
+      toast({
+        title: "Login Successful",
+        description: "Welcome back to AI Exchange!",
+      })
+      router.push("/dashboard")
     } catch (err: any) {
-      setError(err.message || "An error occurred during login")
+      setError(err?.message || "An error occurred during login")
     } finally {
       setIsLoading(false)
     }

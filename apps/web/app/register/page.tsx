@@ -11,8 +11,10 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useToast } from "@/hooks/use-toast"
+import { apiPost } from "@/services/api"
 
 export default function RegisterPage() {
+  const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -26,7 +28,6 @@ export default function RegisterPage() {
     setIsLoading(true)
     setError("")
 
-    // Validate passwords match
     if (password !== confirmPassword) {
       setError("Passwords do not match")
       setIsLoading(false)
@@ -34,47 +35,17 @@ export default function RegisterPage() {
     }
 
     try {
-      // In a real implementation, this would call the backend API
-      // For now, we'll simulate a successful registration
-
-      // const response = await fetch('http://localhost:5000/api/users/register', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ email, password }),
-      // })
-
-      // if (!response.ok) {
-      //   const data = await response.json()
-      //   throw new Error(data.message || 'Registration failed')
-      // }
-
-      // const data = await response.json()
-      // localStorage.setItem('token', data.token)
-      // localStorage.setItem('user', JSON.stringify(data.user))
-
-      // Simulate successful registration
-      setTimeout(() => {
-        localStorage.setItem("token", "mock-jwt-token")
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            userId: 1,
-            email,
-            role: "user",
-          }),
-        )
-
-        toast({
-          title: "Registration Successful",
-          description: "Welcome to AI Exchange!",
-        })
-
-        router.push("/dashboard")
-      }, 1000)
+      const data = await apiPost<{ id: string; email: string }>(
+        "/users",
+        { name, email, password }
+      )
+      toast({
+        title: "Registration Successful",
+        description: "You can now log in with your new account.",
+      })
+      router.push("/login")
     } catch (err: any) {
-      setError(err.message || "An error occurred during registration")
+      setError(err?.message || "An error occurred during registration")
     } finally {
       setIsLoading(false)
     }
@@ -85,7 +56,7 @@ export default function RegisterPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
-          <CardDescription>Enter your email and password to create your account</CardDescription>
+          <CardDescription>Enter your name, email and password to create your account</CardDescription>
         </CardHeader>
         <CardContent>
           {error && (
@@ -94,6 +65,17 @@ export default function RegisterPage() {
             </Alert>
           )}
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Your Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input

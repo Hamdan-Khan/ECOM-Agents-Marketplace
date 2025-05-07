@@ -1,25 +1,25 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Menu, ShoppingCart } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
+import { useAuth } from "@/contexts/auth-context"
 
 export default function Navbar() {
   const pathname = usePathname()
-  const [isLoggedIn, setIsLoggedIn] = useState(false) // This will be replaced with actual auth state
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const { totalItems } = useCart()
+  const { user, logout } = useAuth()
+  const router = useRouter()
 
-  // Check if user is logged in from localStorage
-  useState(() => {
+  useEffect(() => {
     const user = localStorage.getItem("user")
-    if (user) {
-      setIsLoggedIn(true)
-    }
-  })
+    if (user) setIsLoggedIn(true)
+  }, [])
 
   const navLinks = [
     { name: "Home", href: "/" },
@@ -62,21 +62,18 @@ export default function Navbar() {
               </Button>
             </Link>
 
-            {isLoggedIn ? (
+            {user ? (
               <>
-                <Button variant="ghost" asChild>
-                  <Link href="/dashboard">Dashboard</Link>
-                </Button>
-                <Button
-                  variant="outline"
+                <span className="text-sm text-gray-700">{user.name || user.email}</span>
+                <button
+                  className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 text-sm"
                   onClick={() => {
-                    localStorage.removeItem("user")
-                    localStorage.removeItem("token")
-                    setIsLoggedIn(false)
+                    logout()
+                    router.push("/login")
                   }}
                 >
-                  Sign Out
-                </Button>
+                  Logout
+                </button>
               </>
             ) : (
               <>
@@ -115,22 +112,18 @@ export default function Navbar() {
                   Cart {totalItems > 0 && `(${totalItems})`}
                 </Link>
                 <div className="pt-4 border-t">
-                  {isLoggedIn ? (
+                  {user ? (
                     <>
-                      <Button variant="ghost" asChild className="w-full justify-start mb-2">
-                        <Link href="/dashboard">Dashboard</Link>
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start"
+                      <span className="text-sm text-gray-700">{user.name || user.email}</span>
+                      <button
+                        className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 text-sm"
                         onClick={() => {
-                          localStorage.removeItem("user")
-                          localStorage.removeItem("token")
-                          setIsLoggedIn(false)
+                          logout()
+                          router.push("/login")
                         }}
                       >
-                        Sign Out
-                      </Button>
+                        Logout
+                      </button>
                     </>
                   ) : (
                     <>
