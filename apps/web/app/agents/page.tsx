@@ -10,93 +10,37 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
-
-// Mock data for agents
-// This will be replaced with API calls in the future
-const mockAgents = [
-  {
-    id: 1,
-    name: "TextAnalyzer Pro",
-    description: "Advanced NLP tool for sentiment analysis and text classification.",
-    category: "NLP",
-    price: 49.99,
-    subscription_price: 9.99,
-  },
-  {
-    id: 2,
-    name: "ImageVision AI",
-    description: "Computer vision tool for object detection and image classification.",
-    category: "Computer Vision",
-    price: 79.99,
-    subscription_price: 14.99,
-  },
-  {
-    id: 3,
-    name: "DataPredictor",
-    description: "Predictive analytics tool for forecasting business metrics.",
-    category: "Predictive Analytics",
-    price: 99.99,
-    subscription_price: 19.99,
-  },
-  {
-    id: 4,
-    name: "VoiceAssistant",
-    description: "Speech recognition and voice command processing tool.",
-    category: "Speech Recognition",
-    price: 59.99,
-    subscription_price: 11.99,
-  },
-  {
-    id: 5,
-    name: "RecommendationEngine",
-    description: "AI-powered recommendation system for e-commerce and content platforms.",
-    category: "Recommendation Systems",
-    price: 89.99,
-    subscription_price: 16.99,
-  },
-  {
-    id: 6,
-    name: "ChatbotBuilder",
-    description: "Platform for creating and deploying AI chatbots for customer service.",
-    category: "Conversational AI",
-    price: 69.99,
-    subscription_price: 12.99,
-  },
-]
+import { apiGet } from "@/services/api"
 
 const categories = [
   "All Categories",
   "NLP",
-  "Computer Vision",
-  "Predictive Analytics",
-  "Speech Recognition",
-  "Recommendation Systems",
-  "Conversational AI",
+  "COMPUTER_VISION",
+  "ANALYTICS",
+  "BOTS",
+  "WORKFLOW_HELPERS",
 ]
 
 export default function AgentsPage() {
-  const [agents, setAgents] = useState(mockAgents)
+  const [agents, setAgents] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState("")
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("All Categories")
   const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 })
 
-  // Simulate API call to fetch agents
   useEffect(() => {
-    const fetchAgents = async () => {
-      // In a real implementation, this would be an API call
-      // const response = await fetch('/api/agents')
-      // const data = await response.json()
-      // setAgents(data)
-
-      // For now, we'll use the mock data and simulate a loading delay
-      setTimeout(() => {
-        setAgents(mockAgents)
+    setIsLoading(true)
+    setError("")
+    apiGet<any[]>("/agents")
+      .then((data) => {
+        setAgents(data)
         setIsLoading(false)
-      }, 500)
-    }
-
-    fetchAgents()
+      })
+      .catch((err) => {
+        setError(err?.message || "Failed to load agents.")
+        setIsLoading(false)
+      })
   }, [])
 
   // Filter agents based on search, category, and price
@@ -107,7 +51,7 @@ export default function AgentsPage() {
 
     const matchesCategory = selectedCategory === "All Categories" || agent.category === selectedCategory
 
-    const matchesPrice = agent.price >= priceRange.min && agent.price <= priceRange.max
+    const matchesPrice = Number(agent.price) >= priceRange.min && Number(agent.price) <= priceRange.max
 
     return matchesSearch && matchesCategory && matchesPrice
   })
@@ -197,21 +141,23 @@ export default function AgentsPage() {
                 </Card>
               ))}
             </div>
+          ) : error ? (
+            <div className="text-red-600 text-center py-8">{error}</div>
           ) : filteredAgents.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {filteredAgents.map((agent) => (
                 <Card key={agent.id}>
                   <CardHeader>
                     <CardTitle>{agent.name}</CardTitle>
-                    <Badge variant="outline">{agent.category}</Badge>
+                    <Badge>{agent.category}</Badge>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground">{agent.description}</p>
-                    <div className="mt-4 flex items-center justify-between">
-                      <div>
-                        <p className="font-semibold">${agent.price.toFixed(2)}</p>
-                        <p className="text-sm text-muted-foreground">or ${agent.subscription_price.toFixed(2)}/month</p>
-                      </div>
+                    <p className="mb-2 text-gray-700">{agent.description}</p>
+                    <div className="flex items-center space-x-2">
+                      <span className="font-semibold">${Number(agent.price).toFixed(2)}</span>
+                      {agent.subscription_price && (
+                        <span className="text-xs text-gray-500">or ${Number(agent.subscription_price).toFixed(2)}/mo</span>
+                      )}
                     </div>
                   </CardContent>
                   <CardFooter>
@@ -223,10 +169,7 @@ export default function AgentsPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <h3 className="text-xl font-semibold mb-2">No agents found</h3>
-              <p className="text-muted-foreground">Try adjusting your search or filters</p>
-            </div>
+            <div className="text-center py-8 text-gray-500">No agents found.</div>
           )}
         </div>
       </main>

@@ -15,9 +15,12 @@ import { useToast } from "@/hooks/use-toast"
 import { processPayment, type PaymentDetails } from "@/services/payment-service"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
+import { apiPost } from "@/services/api"
+import { useAuth } from "@/contexts/auth-context"
 
 export default function CheckoutPage() {
   const { items, totalPrice, clearCart } = useCart()
+  const { user } = useAuth()
   const [paymentMethod, setPaymentMethod] = useState("credit-card")
   const [tokenBalance, setTokenBalance] = useState(100) // Mock token balance
   const [isLoading, setIsLoading] = useState(false)
@@ -48,7 +51,6 @@ export default function CheckoutPage() {
       return
     }
 
-    const user = localStorage.getItem("user")
     if (!user) {
       toast({
         title: "Authentication required",
@@ -81,7 +83,7 @@ export default function CheckoutPage() {
     }
 
     fetchTokenBalance()
-  }, [items.length, router, toast])
+  }, [items.length, router, toast, user])
 
   const handleBillingInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setBillingInfo({
@@ -98,35 +100,22 @@ export default function CheckoutPage() {
   }
 
   const createOrder = async () => {
-    try {
-      const token = localStorage.getItem("token")
-      if (!token) throw new Error("Authentication required")
+    if (!user) throw new Error("Authentication required")
+    if (items.length === 0) throw new Error("Cart is empty")
 
-      const response = await fetch("/api/orders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          items,
-          totalPrice,
-          paymentMethod,
-          billingInfo,
-        }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || "Failed to create order")
-      }
-
-      const data = await response.json()
-      return data.orderId
-    } catch (error: any) {
-      console.error("Order creation error:", error)
-      throw error
+    // For each cart item, create an order (or batch if backend supports)
+    // Here, we'll assume one order for all items (adjust if backend expects one per agent)
+    const orderPayload = {
+      user_id: user.id,
+      agent_id: items[0]?.id, // If only one agent per order, otherwise loop
+      payment_status: "PENDING",
+      order_type: items[0]?.purchaseType === "subscription" ? "SUBSCRIPTION" : "ONE_TIME",
+      price: totalPrice,
+      transaction_id: "txn-" + Date.now(), // Generate a unique transaction id
+      created_by: user.id,
     }
+    const order = await apiPost<any>("/orders", orderPayload)
+    return order.id
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -135,80 +124,35 @@ export default function CheckoutPage() {
     setError(null)
 
     try {
-      // Validate form based on payment method
-      if (paymentMethod === "credit-card") {
-        if (!paymentInfo.cardNumber || !paymentInfo.cardName || !paymentInfo.expiry || !paymentInfo.cvc) {
-          throw new Error("Please fill in all payment details")
-        }
-      } else if (paymentMethod === "tokens") {
-        if (tokenBalance < totalPrice) {
-          throw new Error("Insufficient token balance")
-        }
-      }
+      if (!user) throw new Error("Authentication required")
+      if (items.length === 0) throw new Error("Cart is empty")
 
-      // Create order first
+      // Create order
       const newOrderId = await createOrder()
       setOrderId(newOrderId)
 
-      // Process payment based on method
-      if (paymentMethod === "credit-card") {
-        const paymentDetails: PaymentDetails = {
-          cardNumber: paymentInfo.cardNumber,
-          cardName: paymentInfo.cardName,
-          expiry: paymentInfo.expiry,
-          cvc: paymentInfo.cvc,
-          amount: totalPrice,
-          currency: "USD",
-          description: `AI Exchange order #${newOrderId}`,
-          orderId: newOrderId,
-        }
+      // Process payment
+      const paymentResult = await processPayment({
+        orderId: newOrderId,
+        userId: user.id,
+        paymentGateway: paymentMethod === "credit-card" ? "CREDIT_CARD" : "TOKENS",
+        amount: totalPrice,
+        transactionId: "txn-" + Date.now(),
+      })
 
-        const paymentResult = await processPayment(paymentDetails)
-
-        if (!paymentResult.success) {
-          throw new Error(paymentResult.error || "Payment processing failed")
-        }
-      } else if (paymentMethod === "tokens") {
-        // Process token payment
-        const response = await fetch("/api/tokens/use", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({
-            amount: totalPrice,
-            orderId: newOrderId,
-          }),
-        })
-
-        if (!response.ok) {
-          const errorData = await response.json()
-          throw new Error(errorData.message || "Token payment failed")
-        }
+      if (!paymentResult.success) {
+        throw new Error(paymentResult.error || "Payment processing failed")
       }
 
-      // Clear the cart
       clearCart()
-
-      // Set flag for order confirmation page
       sessionStorage.setItem("orderCompleted", "true")
-
-      // Show success message
       toast({
         title: "Order Successful",
         description: "Your order has been processed successfully.",
       })
-
-      // Redirect to order confirmation page
-      router.push("/checkout/confirmation")
-    } catch (error: any) {
-      setError(error.message || "An error occurred during checkout")
-      toast({
-        title: "Checkout Failed",
-        description: error.message || "An error occurred during checkout.",
-        variant: "destructive",
-      })
+      router.push("/checkout/confirmation?orderId=" + newOrderId)
+    } catch (err: any) {
+      setError(err.message || "Checkout failed")
     } finally {
       setIsLoading(false)
     }
