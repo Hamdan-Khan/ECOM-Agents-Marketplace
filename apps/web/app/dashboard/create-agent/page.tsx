@@ -1,76 +1,96 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { DashboardLayout } from "@/components/dashboard/layout"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { useToast } from "@/hooks/use-toast"
-import { apiPost } from "@/services/api"
+import { DashboardLayout } from "@/components/dashboard/layout";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
+import { apiPost } from "@/services/api";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 interface FormData {
-  name: string
-  description: string
-  category: string
-  price: string
-  subscription_price: string
+  name: string;
+  description: string;
+  category: string;
+  price: string;
+  subscription_price: string;
 }
 
 export default function CreateAgentPage() {
-  const router = useRouter()
-  const { toast } = useToast()
-  const [loading, setLoading] = useState(false)
+  const router = useRouter();
+  const { isAdmin } = useAuth();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     name: "",
     description: "",
     category: "",
     price: "",
-    subscription_price: ""
-  })
+    subscription_price: "",
+  });
 
   const handleChange = (field: keyof FormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!formData.name || !formData.description || !formData.category || !formData.price) {
+    e.preventDefault();
+
+    if (
+      !formData.name ||
+      !formData.description ||
+      !formData.category ||
+      !formData.price
+    ) {
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields",
-        variant: "destructive"
-      })
-      return
+        variant: "destructive",
+      });
+      return;
     }
 
     try {
-      setLoading(true)
+      setLoading(true);
       await apiPost("/agents", {
         name: formData.name,
         description: formData.description,
         category: formData.category,
         price: parseFloat(formData.price),
-        subscription_price: formData.subscription_price ? parseFloat(formData.subscription_price) : undefined
-      })
+        subscription_price: formData.subscription_price
+          ? parseFloat(formData.subscription_price)
+          : undefined,
+      });
 
       toast({
         title: "Success",
-        description: "Agent created successfully"
-      })
+        description: "Agent created successfully",
+      });
 
-      router.push("/dashboard/my-agents")
+      router.push("/dashboard/my-agents");
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to create agent",
-        variant: "destructive"
-      })
+        variant: "destructive",
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
+  };
+
+  if (!isAdmin) {
+    router.push("/dashboard/my-agents");
+    return null;
   }
 
   return (
@@ -143,7 +163,10 @@ export default function CreateAgentPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium" htmlFor="subscription_price">
+                <label
+                  className="text-sm font-medium"
+                  htmlFor="subscription_price"
+                >
                   Subscription Price ($/month)
                 </label>
                 <Input
@@ -152,7 +175,9 @@ export default function CreateAgentPage() {
                   step="0.01"
                   min="0"
                   value={formData.subscription_price}
-                  onChange={(e) => handleChange("subscription_price", e.target.value)}
+                  onChange={(e) =>
+                    handleChange("subscription_price", e.target.value)
+                  }
                   placeholder="Enter subscription price (optional)"
                 />
               </div>
@@ -174,5 +199,5 @@ export default function CreateAgentPage() {
         </Card>
       </div>
     </DashboardLayout>
-  )
-} 
+  );
+}
