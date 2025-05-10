@@ -27,7 +27,7 @@ export const useAuth = create<AuthState>()(
       token: null,
       isLoading: true,
       isInitialized: false,
-      login: (user: User, token: string) => {
+      login: async (user: User, token: string) => {
         localStorage.setItem("token", token);
         set({ user, token, isInitialized: true });
       },

@@ -1,3 +1,6 @@
+import { LoginResponse } from "@/app/login/page";
+import { useAuth } from "@/hooks/use-auth";
+import { apiPost } from "@/services/api";
 import {
   createContext,
   ReactNode,
@@ -26,14 +29,29 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const { setIsAdmin } = useAuth();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const storedToken = localStorage.getItem("token");
-    if (storedUser && storedToken) {
-      setUser(JSON.parse(storedUser));
-      setToken(storedToken);
-    }
+    const checkLocalStorage = async () => {
+      const storedUser = localStorage.getItem("user");
+      const storedToken = localStorage.getItem("token");
+      if (storedUser && storedToken) {
+        const parsedUser = JSON.parse(storedUser);
+        if (parsedUser && typeof parsedUser === "object") {
+          const data = await apiPost<LoginResponse>("/users/login", {
+            email: parsedUser.email,
+            password: parsedUser.password,
+          });
+          if (data) {
+            setUser(data.user);
+            setToken(data.token);
+            setIsAdmin(data.user.role == "ADMIN");
+          }
+        }
+      }
+    };
+
+    checkLocalStorage();
   }, []);
 
   const login = (user: User, token: string) => {
@@ -57,7 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useAuth() {
+export function useAuthContext() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within an AuthProvider");
   return ctx;

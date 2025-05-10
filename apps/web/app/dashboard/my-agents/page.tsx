@@ -14,7 +14,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiGet, apiPost } from "@/services/api";
 import { format } from "date-fns";
-import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -23,8 +23,8 @@ interface Agent {
   name: string;
   description: string;
   category: string;
-  price: number;
-  subscription_price?: number | null;
+  price: string;
+  subscription_price?: string | null;
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -47,7 +47,9 @@ export default function MyAgentsPage() {
   const fetchAgents = async () => {
     try {
       setLoading(true);
-      const response = await apiGet<{ items: Agent[] }>("/agents/my");
+      const response = await apiGet<{ items: Agent[] }>("/agents/");
+      console.log(response);
+
       setAgents(response.items || []);
     } catch (error: any) {
       if (error.status === 401) {
@@ -138,29 +140,6 @@ export default function MyAgentsPage() {
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                   <CardTitle>{agent.name}</CardTitle>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(agent)}
-                    >
-                      <Pencil className="w-4 h-4 mr-2" />
-                      Edit
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleDelete(agent)}
-                      disabled={deletingAgentId === agent.id}
-                    >
-                      {deletingAgentId === agent.id ? (
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      ) : (
-                        <Trash2 className="w-4 h-4 mr-2" />
-                      )}
-                      {deletingAgentId === agent.id ? "Deleting..." : "Delete"}
-                    </Button>
-                  </div>
                 </div>
                 <CardDescription className="flex items-center gap-2 mt-2">
                   <Badge variant="outline">{agent.category}</Badge>
@@ -176,14 +155,15 @@ export default function MyAgentsPage() {
                 <div className="mt-4 flex items-center gap-4">
                   <div>
                     <span className="font-medium">Price:</span> $
-                    {agent.price.toFixed(2)}
+                    {parseInt(agent.price).toFixed(2)}
                   </div>
-                  {agent.subscription_price && agent.subscription_price > 0 && (
-                    <div>
-                      <span className="font-medium">Subscription:</span> $
-                      {agent.subscription_price.toFixed(2)}/month
-                    </div>
-                  )}
+                  {agent.subscription_price &&
+                    parseInt(agent.subscription_price) > 0 && (
+                      <div>
+                        <span className="font-medium">Subscription:</span> $
+                        {parseInt(agent.subscription_price).toFixed(2)}/month
+                      </div>
+                    )}
                 </div>
               </CardContent>
             </Card>

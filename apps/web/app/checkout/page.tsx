@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useAuth } from "@/contexts/auth-context";
+import { useAuthContext } from "@/contexts/auth-context";
 import { useCart } from "@/contexts/cart-context";
 import { useToast } from "@/hooks/use-toast";
 import { apiPost } from "@/services/api";
@@ -20,7 +20,7 @@ import { useEffect, useState } from "react";
 
 export default function CheckoutPage() {
   const { items, totalPrice, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const [paymentMethod, setPaymentMethod] = useState("credit-card");
   const [tokenBalance, setTokenBalance] = useState(100); // Mock token balance
   const [isLoading, setIsLoading] = useState(false);

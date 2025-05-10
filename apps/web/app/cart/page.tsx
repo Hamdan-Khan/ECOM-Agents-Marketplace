@@ -10,17 +10,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { useCart } from "@/contexts/cart-context";
 import { useToast } from "@/hooks/use-toast";
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, totalPrice, clearCart } =
-    useCart();
+  const { items, removeItem, totalPrice, clearCart } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
@@ -71,49 +69,6 @@ export default function CartPage() {
                           </div>
                         </div>
                         <div className="flex items-center">
-                          <div className="flex items-center mr-4">
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-8 w-8 rounded-r-none"
-                              onClick={() =>
-                                updateQuantity(
-                                  item.id,
-                                  item.purchaseType,
-                                  item.quantity - 1
-                                )
-                              }
-                            >
-                              <Minus className="h-4 w-4" />
-                            </Button>
-                            <Input
-                              type="number"
-                              min="1"
-                              value={item.quantity}
-                              onChange={(e) =>
-                                updateQuantity(
-                                  item.id,
-                                  item.purchaseType,
-                                  Number.parseInt(e.target.value) || 1
-                                )
-                              }
-                              className="h-8 w-12 rounded-none text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                            />
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-8 w-8 rounded-l-none"
-                              onClick={() =>
-                                updateQuantity(
-                                  item.id,
-                                  item.purchaseType,
-                                  item.quantity + 1
-                                )
-                              }
-                            >
-                              <Plus className="h-4 w-4" />
-                            </Button>
-                          </div>
                           <div className="text-right min-w-[80px] mr-4">
                             ${(item.price * item.quantity).toFixed(2)}
                           </div>

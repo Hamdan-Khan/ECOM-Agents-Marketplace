@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -7,23 +7,35 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <h3 className="text-lg font-semibold mb-4">AI Exchange</h3>
-            <p className="text-gray-400">The marketplace for AI agents and tools to enhance your business workflows.</p>
+            <p className="text-gray-400">
+              The marketplace for AI agents and tools to enhance your business
+              workflows.
+            </p>
           </div>
           <div>
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/agents" className="text-gray-400 hover:text-white transition-colors">
+                <Link
+                  href="/agents"
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
                   Browse Agents
                 </Link>
               </li>
               <li>
-                <Link href="/register" className="text-gray-400 hover:text-white transition-colors">
+                <Link
+                  href="/register"
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
                   Sign Up
                 </Link>
               </li>
               <li>
-                <Link href="/login" className="text-gray-400 hover:text-white transition-colors">
+                <Link
+                  href="/login"
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
                   Sign In
                 </Link>
               </li>
@@ -33,42 +45,22 @@ export default function Footer() {
             <h3 className="text-lg font-semibold mb-4">Resources</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/how-it-works" className="text-gray-400 hover:text-white transition-colors">
+                <Link
+                  href="/how-it-works"
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
                   How It Works
-                </Link>
-              </li>
-              <li>
-                <Link href="/faq" className="text-gray-400 hover:text-white transition-colors">
-                  FAQ
-                </Link>
-              </li>
-              <li>
-                <Link href="/support" className="text-gray-400 hover:text-white transition-colors">
-                  Support
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Legal</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/terms" className="text-gray-400 hover:text-white transition-colors">
-                  Terms of Service
-                </Link>
-              </li>
-              <li>
-                <Link href="/privacy" className="text-gray-400 hover:text-white transition-colors">
-                  Privacy Policy
                 </Link>
               </li>
             </ul>
           </div>
         </div>
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-          <p>&copy; {new Date().getFullYear()} AI Exchange. All rights reserved.</p>
+          <p>
+            &copy; {new Date().getFullYear()} AI Exchange. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>
-  )
+  );
 }
