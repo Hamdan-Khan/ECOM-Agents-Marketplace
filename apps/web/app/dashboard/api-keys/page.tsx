@@ -1,21 +1,7 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import Footer from "@/components/footer";
+import Navbar from "@/components/navbar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,46 +12,72 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Badge } from "@/components/ui/badge"
-import { useToast } from "@/hooks/use-toast"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
-import { Copy, Key, RefreshCw, Trash2 } from "lucide-react"
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { Copy, Key, RefreshCw, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 type ApiKey = {
-  key_id: number
-  agent_id: number
-  agent_name: string
-  key_name: string | null
-  status: "active" | "revoked"
-  created_at: string
-  expires_at: string | null
-  last_used: string | null
-}
+  key_id: number;
+  agent_id: number;
+  agent_name: string;
+  key_name: string | null;
+  status: "active" | "revoked";
+  created_at: string;
+  expires_at: string | null;
+  last_used: string | null;
+};
 
 type Agent = {
-  id: number
-  name: string
-}
+  id: number;
+  name: string;
+};
 
 export default function ApiKeysPage() {
-  const [apiKeys, setApiKeys] = useState<ApiKey[]>([])
-  const [purchasedAgents, setPurchasedAgents] = useState<Agent[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [newKeyName, setNewKeyName] = useState("")
-  const [selectedAgent, setSelectedAgent] = useState<string>("")
-  const [newApiKey, setNewApiKey] = useState<string | null>(null)
-  const router = useRouter()
-  const { toast } = useToast()
+  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
+  const [purchasedAgents, setPurchasedAgents] = useState<Agent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [newKeyName, setNewKeyName] = useState("");
+  const [selectedAgent, setSelectedAgent] = useState<string>("");
+  const [newApiKey, setNewApiKey] = useState<string | null>(null);
+  const router = useRouter();
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("token")
+        const token = localStorage.getItem("token");
         if (!token) {
-          router.push("/login?redirect=dashboard/api-keys")
-          return
+          router.push("/login?redirect=dashboard/api-keys");
+          return;
         }
 
         // In a real implementation, these would be API calls
@@ -103,29 +115,29 @@ export default function ApiKeysPage() {
               expires_at: null,
               last_used: "2023-07-12T00:00:00Z",
             },
-          ])
+          ]);
 
           // Mock purchased agents
           setPurchasedAgents([
             { id: 1, name: "TextAnalyzer Pro" },
             { id: 3, name: "DataPredictor" },
-          ])
+          ]);
 
-          setIsLoading(false)
-        }, 1000)
+          setIsLoading(false);
+        }, 1000);
       } catch (error) {
-        console.error("Error fetching data:", error)
+        console.error("Error fetching data:", error);
         toast({
           title: "Error",
           description: "Failed to load API keys",
           variant: "destructive",
-        })
-        setIsLoading(false)
+        });
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchData()
-  }, [router, toast])
+    fetchData();
+  }, [router, toast]);
 
   const handleCreateKey = async () => {
     try {
@@ -134,11 +146,11 @@ export default function ApiKeysPage() {
           title: "Error",
           description: "Please select an agent",
           variant: "destructive",
-        })
-        return
+        });
+        return;
       }
 
-      setIsLoading(true)
+      setIsLoading(true);
 
       // In a real implementation, this would be an API call
       // const response = await fetch('/api/keys', {
@@ -161,13 +173,17 @@ export default function ApiKeysPage() {
 
       // Mock response
       const mockApiKey =
-        "sk_test_" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+        "sk_test_" +
+        Math.random().toString(36).substring(2, 15) +
+        Math.random().toString(36).substring(2, 15);
 
       // Set the new API key for display
-      setNewApiKey(mockApiKey)
+      setNewApiKey(mockApiKey);
 
       // Add the new key to the list (without the actual key value)
-      const agent = purchasedAgents.find((a) => a.id === Number.parseInt(selectedAgent))
+      const agent = purchasedAgents.find(
+        (a) => a.id === Number.parseInt(selectedAgent)
+      );
 
       if (agent) {
         setApiKeys([
@@ -182,32 +198,32 @@ export default function ApiKeysPage() {
             last_used: null,
           },
           ...apiKeys,
-        ])
+        ]);
       }
 
       // Reset form
-      setNewKeyName("")
-      setSelectedAgent("")
+      setNewKeyName("");
+      setSelectedAgent("");
 
       toast({
         title: "Success",
         description: "API key created successfully",
-      })
+      });
     } catch (error) {
-      console.error("Error creating API key:", error)
+      console.error("Error creating API key:", error);
       toast({
         title: "Error",
         description: "Failed to create API key",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleRevokeKey = async (keyId: number) => {
     try {
-      setIsLoading(true)
+      setIsLoading(true);
 
       // In a real implementation, this would be an API call
       // const response = await fetch(`/api/keys/${keyId}/revoke`, {
@@ -222,27 +238,31 @@ export default function ApiKeysPage() {
       // }
 
       // Update the key status in the list
-      setApiKeys(apiKeys.map((key) => (key.key_id === keyId ? { ...key, status: "revoked" } : key)))
+      setApiKeys(
+        apiKeys.map((key) =>
+          key.key_id === keyId ? { ...key, status: "revoked" } : key
+        )
+      );
 
       toast({
         title: "Success",
         description: "API key revoked successfully",
-      })
+      });
     } catch (error) {
-      console.error("Error revoking API key:", error)
+      console.error("Error revoking API key:", error);
       toast({
         title: "Error",
         description: "Failed to revoke API key",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleRenameKey = async (keyId: number, newName: string) => {
     try {
-      setIsLoading(true)
+      setIsLoading(true);
 
       // In a real implementation, this would be an API call
       // const response = await fetch(`/api/keys/${keyId}/rename`, {
@@ -259,38 +279,42 @@ export default function ApiKeysPage() {
       // }
 
       // Update the key name in the list
-      setApiKeys(apiKeys.map((key) => (key.key_id === keyId ? { ...key, key_name: newName } : key)))
+      setApiKeys(
+        apiKeys.map((key) =>
+          key.key_id === keyId ? { ...key, key_name: newName } : key
+        )
+      );
 
       toast({
         title: "Success",
         description: "API key renamed successfully",
-      })
+      });
     } catch (error) {
-      console.error("Error renaming API key:", error)
+      console.error("Error renaming API key:", error);
       toast({
         title: "Error",
         description: "Failed to rename API key",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
+    navigator.clipboard.writeText(text);
     toast({
       title: "Copied",
       description: "API key copied to clipboard",
-    })
-  }
+    });
+  };
 
   // Format date for display
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return "N/A"
-    const date = new Date(dateString)
-    return date.toLocaleDateString() + " " + date.toLocaleTimeString()
-  }
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + " " + date.toLocaleTimeString();
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -299,7 +323,9 @@ export default function ApiKeysPage() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold">API Keys</h1>
-            <p className="text-muted-foreground">Manage API keys for your purchased AI agents</p>
+            <p className="text-muted-foreground">
+              Manage API keys for your purchased AI agents
+            </p>
           </div>
           <Dialog>
             <DialogTrigger asChild>
@@ -309,13 +335,17 @@ export default function ApiKeysPage() {
               <DialogHeader>
                 <DialogTitle>Create New API Key</DialogTitle>
                 <DialogDescription>
-                  Create an API key to integrate with your purchased AI agent. Keep your API keys secure.
+                  Create an API key to integrate with your purchased AI agent.
+                  Keep your API keys secure.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
                   <Label htmlFor="agent">Select Agent</Label>
-                  <Select value={selectedAgent} onValueChange={setSelectedAgent}>
+                  <Select
+                    value={selectedAgent}
+                    onValueChange={setSelectedAgent}
+                  >
                     <SelectTrigger id="agent">
                       <SelectValue placeholder="Select an agent" />
                     </SelectTrigger>
@@ -339,7 +369,10 @@ export default function ApiKeysPage() {
                 </div>
               </div>
               <DialogFooter>
-                <Button onClick={handleCreateKey} disabled={!selectedAgent || isLoading}>
+                <Button
+                  onClick={handleCreateKey}
+                  disabled={!selectedAgent || isLoading}
+                >
                   {isLoading ? "Creating..." : "Create API Key"}
                 </Button>
               </DialogFooter>
@@ -350,15 +383,22 @@ export default function ApiKeysPage() {
         {newApiKey && (
           <Card className="mb-8 border-green-500">
             <CardHeader>
-              <CardTitle className="text-green-600">API Key Created Successfully</CardTitle>
+              <CardTitle className="text-green-600">
+                API Key Created Successfully
+              </CardTitle>
               <CardDescription>
-                This is the only time your API key will be displayed. Please copy it now and store it securely.
+                This is the only time your API key will be displayed. Please
+                copy it now and store it securely.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="bg-gray-100 p-4 rounded-md flex items-center justify-between">
                 <code className="text-sm font-mono break-all">{newApiKey}</code>
-                <Button variant="outline" size="sm" onClick={() => copyToClipboard(newApiKey)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => copyToClipboard(newApiKey)}
+                >
                   <Copy className="h-4 w-4 mr-2" />
                   Copy
                 </Button>
@@ -388,11 +428,17 @@ export default function ApiKeysPage() {
               <Card key={key.key_id}>
                 <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
                   <div>
-                    <CardTitle>{key.key_name || `Unnamed Key (${key.key_id})`}</CardTitle>
+                    <CardTitle>
+                      {key.key_name || `Unnamed Key (${key.key_id})`}
+                    </CardTitle>
                     <CardDescription>{key.agent_name}</CardDescription>
                   </div>
                   <Badge
-                    className={key.status === "active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}
+                    className={
+                      key.status === "active"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-800"
+                    }
                   >
                     {key.status}
                   </Badge>
@@ -401,17 +447,29 @@ export default function ApiKeysPage() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Created</p>
-                        <p className="font-medium">{formatDate(key.created_at)}</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Created
+                        </p>
+                        <p className="font-medium">
+                          {formatDate(key.created_at)}
+                        </p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Last Used</p>
-                        <p className="font-medium">{formatDate(key.last_used)}</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Last Used
+                        </p>
+                        <p className="font-medium">
+                          {formatDate(key.last_used)}
+                        </p>
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Expires</p>
-                      <p className="font-medium">{key.expires_at ? formatDate(key.expires_at) : "Never"}</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Expires
+                      </p>
+                      <p className="font-medium">
+                        {key.expires_at ? formatDate(key.expires_at) : "Never"}
+                      </p>
                     </div>
 
                     {key.status === "active" && (
@@ -426,7 +484,9 @@ export default function ApiKeysPage() {
                           <DialogContent>
                             <DialogHeader>
                               <DialogTitle>Rename API Key</DialogTitle>
-                              <DialogDescription>Enter a new name for your API key.</DialogDescription>
+                              <DialogDescription>
+                                Enter a new name for your API key.
+                              </DialogDescription>
                             </DialogHeader>
                             <div className="space-y-4 py-4">
                               <div className="space-y-2">
@@ -441,8 +501,10 @@ export default function ApiKeysPage() {
                             <DialogFooter>
                               <Button
                                 onClick={() => {
-                                  const input = document.getElementById("newKeyName") as HTMLInputElement
-                                  handleRenameKey(key.key_id, input.value)
+                                  const input = document.getElementById(
+                                    "newKeyName"
+                                  ) as HTMLInputElement;
+                                  handleRenameKey(key.key_id, input.value);
                                 }}
                               >
                                 Save Changes
@@ -460,15 +522,20 @@ export default function ApiKeysPage() {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Revoke API Key</AlertDialogTitle>
+                              <AlertDialogTitle>
+                                Revoke API Key
+                              </AlertDialogTitle>
                               <AlertDialogDescription>
-                                Are you sure you want to revoke this API key? This action cannot be undone, and any
+                                Are you sure you want to revoke this API key?
+                                This action cannot be undone, and any
                                 applications using this key will no longer work.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleRevokeKey(key.key_id)}>
+                              <AlertDialogAction
+                                onClick={() => handleRevokeKey(key.key_id)}
+                              >
                                 Yes, Revoke Key
                               </AlertDialogAction>
                             </AlertDialogFooter>
@@ -488,7 +555,8 @@ export default function ApiKeysPage() {
             </div>
             <h2 className="text-2xl font-bold mb-2">No API Keys Found</h2>
             <p className="text-muted-foreground mb-6">
-              You haven't created any API keys yet. Create a key to start integrating with your purchased AI agents.
+              You haven't created any API keys yet. Create a key to start
+              integrating with your purchased AI agents.
             </p>
             <Dialog>
               <DialogTrigger asChild>
@@ -498,19 +566,26 @@ export default function ApiKeysPage() {
                 <DialogHeader>
                   <DialogTitle>Create New API Key</DialogTitle>
                   <DialogDescription>
-                    Create an API key to integrate with your purchased AI agent. Keep your API keys secure.
+                    Create an API key to integrate with your purchased AI agent.
+                    Keep your API keys secure.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div className="space-y-2">
                     <Label htmlFor="agent">Select Agent</Label>
-                    <Select value={selectedAgent} onValueChange={setSelectedAgent}>
+                    <Select
+                      value={selectedAgent}
+                      onValueChange={setSelectedAgent}
+                    >
                       <SelectTrigger id="agent">
                         <SelectValue placeholder="Select an agent" />
                       </SelectTrigger>
                       <SelectContent>
                         {purchasedAgents.map((agent) => (
-                          <SelectItem key={agent.id} value={agent.id.toString()}>
+                          <SelectItem
+                            key={agent.id}
+                            value={agent.id.toString()}
+                          >
                             {agent.name}
                           </SelectItem>
                         ))}
@@ -528,7 +603,10 @@ export default function ApiKeysPage() {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button onClick={handleCreateKey} disabled={!selectedAgent || isLoading}>
+                  <Button
+                    onClick={handleCreateKey}
+                    disabled={!selectedAgent || isLoading}
+                  >
                     {isLoading ? "Creating..." : "Create API Key"}
                   </Button>
                 </DialogFooter>
@@ -539,5 +617,5 @@ export default function ApiKeysPage() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }

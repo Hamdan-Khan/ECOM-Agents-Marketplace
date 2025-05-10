@@ -1,10 +1,7 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import Footer from "@/components/footer";
+import Navbar from "@/components/navbar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,33 +12,42 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { useToast } from "@/hooks/use-toast"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 type Subscription = {
-  subscription_id: number
-  agent_id: number
-  agent_name: string
-  status: "active" | "paused" | "cancelled"
-  next_billing_date: string
-  payment_method: "gateway" | "tokens"
-  price: number
-  created_at: string
-}
+  subscription_id: number;
+  agent_id: number;
+  agent_name: string;
+  status: "active" | "paused" | "cancelled";
+  next_billing_date: string;
+  payment_method: "gateway" | "tokens";
+  price: number;
+  created_at: string;
+};
 
 export default function SubscriptionsPage() {
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const { toast } = useToast()
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchSubscriptions = async () => {
       try {
-        const token = localStorage.getItem("token")
+        const token = localStorage.getItem("token");
         if (!token) {
-          throw new Error("Authentication required")
+          throw new Error("Authentication required");
         }
 
         // In a real implementation, this would be an API call
@@ -81,21 +87,21 @@ export default function SubscriptionsPage() {
               price: 19.99,
               created_at: "2023-07-15",
             },
-          ])
-          setIsLoading(false)
-        }, 1000)
+          ]);
+          setIsLoading(false);
+        }, 1000);
       } catch (error: any) {
         toast({
           title: "Error",
           description: error.message || "Failed to load subscriptions",
           variant: "destructive",
-        })
-        setIsLoading(false)
+        });
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchSubscriptions()
-  }, [toast])
+    fetchSubscriptions();
+  }, [toast]);
 
   const handleCancelSubscription = async (subscriptionId: number) => {
     try {
@@ -113,25 +119,32 @@ export default function SubscriptionsPage() {
 
       // Update local state
       setSubscriptions((prev) =>
-        prev.map((sub) => (sub.subscription_id === subscriptionId ? { ...sub, status: "cancelled" } : sub)),
-      )
+        prev.map((sub) =>
+          sub.subscription_id === subscriptionId
+            ? { ...sub, status: "cancelled" }
+            : sub
+        )
+      );
 
       toast({
         title: "Subscription Cancelled",
         description: "Your subscription has been cancelled successfully.",
-      })
+      });
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to cancel subscription",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
-  const handlePauseSubscription = async (subscriptionId: number, currentStatus: string) => {
+  const handlePauseSubscription = async (
+    subscriptionId: number,
+    currentStatus: string
+  ) => {
     try {
-      const newStatus = currentStatus === "paused" ? "active" : "paused"
+      const newStatus = currentStatus === "paused" ? "active" : "paused";
 
       // In a real implementation, this would be an API call
       // const response = await fetch(`/api/subscriptions/${subscriptionId}/status`, {
@@ -152,31 +165,34 @@ export default function SubscriptionsPage() {
         prev.map((sub) =>
           sub.subscription_id === subscriptionId
             ? { ...sub, status: newStatus as "active" | "paused" | "cancelled" }
-            : sub,
-        ),
-      )
+            : sub
+        )
+      );
 
       toast({
-        title: newStatus === "paused" ? "Subscription Paused" : "Subscription Resumed",
+        title:
+          newStatus === "paused"
+            ? "Subscription Paused"
+            : "Subscription Resumed",
         description:
           newStatus === "paused"
             ? "Your subscription has been paused. You can resume it anytime."
             : "Your subscription has been resumed successfully.",
-      })
+      });
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to update subscription",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   // Format date for display
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString()
-  }
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -185,7 +201,9 @@ export default function SubscriptionsPage() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold">My Subscriptions</h1>
-            <p className="text-muted-foreground">Manage your active subscriptions</p>
+            <p className="text-muted-foreground">
+              Manage your active subscriptions
+            </p>
           </div>
           <Button asChild>
             <Link href="/agents">Browse More Agents</Link>
@@ -214,7 +232,9 @@ export default function SubscriptionsPage() {
                 <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
                   <div>
                     <CardTitle>{subscription.agent_name}</CardTitle>
-                    <CardDescription>Subscribed on {formatDate(subscription.created_at)}</CardDescription>
+                    <CardDescription>
+                      Subscribed on {formatDate(subscription.created_at)}
+                    </CardDescription>
                   </div>
                   <Badge
                     className={
@@ -232,7 +252,9 @@ export default function SubscriptionsPage() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Next Billing Date</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Next Billing Date
+                        </p>
                         <p className="font-medium">
                           {subscription.status === "cancelled"
                             ? "No future billing"
@@ -240,41 +262,70 @@ export default function SubscriptionsPage() {
                         </p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Payment Method</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Payment Method
+                        </p>
                         <p className="font-medium capitalize">
-                          {subscription.payment_method === "gateway" ? "Credit Card" : "Tokens"}
+                          {subscription.payment_method === "gateway"
+                            ? "Credit Card"
+                            : "Tokens"}
                         </p>
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Monthly Price</p>
-                      <p className="font-medium">${subscription.price.toFixed(2)}</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Monthly Price
+                      </p>
+                      <p className="font-medium">
+                        ${subscription.price.toFixed(2)}
+                      </p>
                     </div>
 
                     {subscription.status !== "cancelled" && (
                       <div className="flex space-x-2 pt-2">
                         <Button
                           variant="outline"
-                          onClick={() => handlePauseSubscription(subscription.subscription_id, subscription.status)}
+                          onClick={() =>
+                            handlePauseSubscription(
+                              subscription.subscription_id,
+                              subscription.status
+                            )
+                          }
                         >
-                          {subscription.status === "paused" ? "Resume" : "Pause"}
+                          {subscription.status === "paused"
+                            ? "Resume"
+                            : "Pause"}
                         </Button>
 
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button variant="destructive">Cancel Subscription</Button>
+                            <Button variant="destructive">
+                              Cancel Subscription
+                            </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Cancel Subscription</AlertDialogTitle>
+                              <AlertDialogTitle>
+                                Cancel Subscription
+                              </AlertDialogTitle>
                               <AlertDialogDescription>
-                                Are you sure you want to cancel your subscription to {subscription.agent_name}? You will
-                                lose access at the end of your current billing period.
+                                Are you sure you want to cancel your
+                                subscription to {subscription.agent_name}? You
+                                will lose access at the end of your current
+                                billing period.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                              <AlertDialogCancel>Keep Subscription</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleCancelSubscription(subscription.subscription_id)}>
+                              <AlertDialogCancel>
+                                Keep Subscription
+                              </AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() =>
+                                  handleCancelSubscription(
+                                    subscription.subscription_id
+                                  )
+                                }
+                              >
                                 Yes, Cancel
                               </AlertDialogAction>
                             </AlertDialogFooter>
@@ -291,7 +342,8 @@ export default function SubscriptionsPage() {
           <div className="text-center py-12">
             <h2 className="text-2xl font-bold mb-2">No active subscriptions</h2>
             <p className="text-muted-foreground mb-6">
-              You don't have any active subscriptions. Browse our AI agents to find tools that can help you.
+              You don't have any active subscriptions. Browse our AI agents to
+              find tools that can help you.
             </p>
             <Button asChild>
               <Link href="/agents">Browse AI Agents</Link>
@@ -301,5 +353,5 @@ export default function SubscriptionsPage() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }

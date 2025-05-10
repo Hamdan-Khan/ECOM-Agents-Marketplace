@@ -1,31 +1,31 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { useCart } from "@/contexts/cart-context"
-import { useToast } from "@/hooks/use-toast"
-import { processPayment, type PaymentDetails } from "@/services/payment-service"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
-import { apiPost } from "@/services/api"
-import { useAuth } from "@/contexts/auth-context"
+import Footer from "@/components/footer";
+import Navbar from "@/components/navbar";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useAuth } from "@/contexts/auth-context";
+import { useCart } from "@/contexts/cart-context";
+import { useToast } from "@/hooks/use-toast";
+import { apiPost } from "@/services/api";
+import { processPayment } from "@/services/payment-service";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function CheckoutPage() {
-  const { items, totalPrice, clearCart } = useCart()
-  const { user } = useAuth()
-  const [paymentMethod, setPaymentMethod] = useState("credit-card")
-  const [tokenBalance, setTokenBalance] = useState(100) // Mock token balance
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [orderId, setOrderId] = useState<string | null>(null)
+  const { items, totalPrice, clearCart } = useCart();
+  const { user } = useAuth();
+  const [paymentMethod, setPaymentMethod] = useState("credit-card");
+  const [tokenBalance, setTokenBalance] = useState(100); // Mock token balance
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [orderId, setOrderId] = useState<string | null>(null);
   const [billingInfo, setBillingInfo] = useState({
     name: "",
     email: "",
@@ -34,21 +34,21 @@ export default function CheckoutPage() {
     state: "",
     zip: "",
     country: "",
-  })
+  });
   const [paymentInfo, setPaymentInfo] = useState({
     cardNumber: "",
     cardName: "",
     expiry: "",
     cvc: "",
-  })
-  const router = useRouter()
-  const { toast } = useToast()
+  });
+  const router = useRouter();
+  const { toast } = useToast();
 
   // Check if cart is empty or user is not logged in
   useEffect(() => {
     if (items.length === 0) {
-      router.push("/cart")
-      return
+      router.push("/cart");
+      return;
     }
 
     if (!user) {
@@ -56,52 +56,52 @@ export default function CheckoutPage() {
         title: "Authentication required",
         description: "Please sign in to proceed with checkout.",
         variant: "destructive",
-      })
-      router.push("/login?redirect=checkout")
+      });
+      router.push("/login?redirect=checkout");
     }
 
     // In a real app, we would fetch the user's token balance here
     // For now, we'll use a mock value
     const fetchTokenBalance = async () => {
       try {
-        const token = localStorage.getItem("token")
-        if (!token) return
+        const token = localStorage.getItem("token");
+        if (!token) return;
 
         const response = await fetch("/api/tokens/balance", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        })
+        });
 
         if (response.ok) {
-          const data = await response.json()
-          setTokenBalance(data.balance)
+          const data = await response.json();
+          setTokenBalance(data.balance);
         }
       } catch (error) {
-        console.error("Error fetching token balance:", error)
+        console.error("Error fetching token balance:", error);
       }
-    }
+    };
 
-    fetchTokenBalance()
-  }, [items.length, router, toast, user])
+    fetchTokenBalance();
+  }, [items.length, router, toast, user]);
 
   const handleBillingInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setBillingInfo({
       ...billingInfo,
       [e.target.name]: e.target.value,
-    })
-  }
+    });
+  };
 
   const handlePaymentInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPaymentInfo({
       ...paymentInfo,
       [e.target.name]: e.target.value,
-    })
-  }
+    });
+  };
 
   const createOrder = async () => {
-    if (!user) throw new Error("Authentication required")
-    if (items.length === 0) throw new Error("Cart is empty")
+    if (!user) throw new Error("Authentication required");
+    if (items.length === 0) throw new Error("Cart is empty");
 
     // For each cart item, create an order (or batch if backend supports)
     // Here, we'll assume one order for all items (adjust if backend expects one per agent)
@@ -109,56 +109,59 @@ export default function CheckoutPage() {
       user_id: user.id,
       agent_id: items[0]?.id, // If only one agent per order, otherwise loop
       payment_status: "PENDING",
-      order_type: items[0]?.purchaseType === "subscription" ? "SUBSCRIPTION" : "ONE_TIME",
+      order_type:
+        items[0]?.purchaseType === "subscription" ? "SUBSCRIPTION" : "ONE_TIME",
       price: totalPrice,
       transaction_id: "txn-" + Date.now(), // Generate a unique transaction id
       created_by: user.id,
-    }
-    const order = await apiPost<any>("/orders", orderPayload)
-    return order.id
-  }
+    };
+    const order = await apiPost<any>("/orders", orderPayload);
+    return order.id;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError(null)
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
 
     try {
-      if (!user) throw new Error("Authentication required")
-      if (items.length === 0) throw new Error("Cart is empty")
+      if (!user) throw new Error("Authentication required");
+      if (items.length === 0) throw new Error("Cart is empty");
 
       // Create order
-      const newOrderId = await createOrder()
-      setOrderId(newOrderId)
+      const newOrderId = await createOrder();
+      setOrderId(newOrderId);
 
       // Process payment
       const paymentResult = await processPayment({
         orderId: newOrderId,
         userId: user.id,
-        paymentGateway: paymentMethod === "credit-card" ? "CREDIT_CARD" : "TOKENS",
+        paymentGateway:
+          paymentMethod === "credit-card" ? "CREDIT_CARD" : "TOKENS",
         amount: totalPrice,
         transactionId: "txn-" + Date.now(),
-      })
+      });
 
       if (!paymentResult.success) {
-        throw new Error(paymentResult.error || "Payment processing failed")
+        throw new Error(paymentResult.error || "Payment processing failed");
       }
 
-      clearCart()
-      sessionStorage.setItem("orderCompleted", "true")
+      clearCart();
+      sessionStorage.setItem("orderCompleted", "true");
       toast({
         title: "Order Successful",
         description: "Your order has been processed successfully.",
-      })
-      router.push("/checkout/confirmation?orderId=" + newOrderId)
+      });
+      router.push("/checkout/confirmation?orderId=" + newOrderId);
     } catch (err: any) {
-      setError(err.message || "Checkout failed")
+      setError(err.message || "Checkout failed");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
-  const hasInsufficientTokens = paymentMethod === "tokens" && tokenBalance < totalPrice
+  const hasInsufficientTokens =
+    paymentMethod === "tokens" && tokenBalance < totalPrice;
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -237,7 +240,13 @@ export default function CheckoutPage() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="zip">ZIP/Postal Code</Label>
-                      <Input id="zip" name="zip" value={billingInfo.zip} onChange={handleBillingInfoChange} required />
+                      <Input
+                        id="zip"
+                        name="zip"
+                        value={billingInfo.zip}
+                        onChange={handleBillingInfoChange}
+                        required
+                      />
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -258,14 +267,20 @@ export default function CheckoutPage() {
                   <CardTitle>Payment Method</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-4">
+                  <RadioGroup
+                    value={paymentMethod}
+                    onValueChange={setPaymentMethod}
+                    className="space-y-4"
+                  >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="credit-card" id="credit-card" />
                       <Label htmlFor="credit-card">Credit Card</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="tokens" id="tokens" />
-                      <Label htmlFor="tokens">Tokens (Balance: {tokenBalance})</Label>
+                      <Label htmlFor="tokens">
+                        Tokens (Balance: {tokenBalance})
+                      </Label>
                     </div>
                   </RadioGroup>
 
@@ -320,10 +335,13 @@ export default function CheckoutPage() {
                     <div className="mt-6">
                       {hasInsufficientTokens ? (
                         <div className="text-red-500 mb-4">
-                          Insufficient token balance. You need {totalPrice - tokenBalance} more tokens.
+                          Insufficient token balance. You need{" "}
+                          {totalPrice - tokenBalance} more tokens.
                         </div>
                       ) : (
-                        <div className="text-green-600 mb-4">You have enough tokens for this purchase.</div>
+                        <div className="text-green-600 mb-4">
+                          You have enough tokens for this purchase.
+                        </div>
                       )}
                       <Button variant="outline" type="button" asChild>
                         <a href="/tokens">Purchase More Tokens</a>
@@ -333,8 +351,14 @@ export default function CheckoutPage() {
                 </CardContent>
               </Card>
 
-              <Button type="submit" className="w-full" disabled={isLoading || hasInsufficientTokens}>
-                {isLoading ? "Processing..." : `Complete Purchase ($${totalPrice.toFixed(2)})`}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isLoading || hasInsufficientTokens}
+              >
+                {isLoading
+                  ? "Processing..."
+                  : `Complete Purchase ($${totalPrice.toFixed(2)})`}
               </Button>
             </form>
           </div>
@@ -347,15 +371,22 @@ export default function CheckoutPage() {
               <CardContent>
                 <div className="divide-y">
                   {items.map((item) => (
-                    <div key={`${item.id}-${item.purchaseType}`} className="py-3 flex justify-between">
+                    <div
+                      key={`${item.id}-${item.purchaseType}`}
+                      className="py-3 flex justify-between"
+                    >
                       <div>
                         <div className="font-medium">{item.name}</div>
                         <div className="text-sm text-muted-foreground">
-                          {item.purchaseType === "one-time" ? "One-time purchase" : "Monthly subscription"}
+                          {item.purchaseType === "one-time"
+                            ? "One-time purchase"
+                            : "Monthly subscription"}
                         </div>
                         <div className="text-sm">Qty: {item.quantity}</div>
                       </div>
-                      <div className="text-right">${(item.price * item.quantity).toFixed(2)}</div>
+                      <div className="text-right">
+                        ${(item.price * item.quantity).toFixed(2)}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -372,5 +403,5 @@ export default function CheckoutPage() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }

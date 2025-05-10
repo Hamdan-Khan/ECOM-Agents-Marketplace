@@ -1,41 +1,51 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { useToast } from "@/hooks/use-toast"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
-import { Copy, ExternalLink } from "lucide-react"
+import Footer from "@/components/footer";
+import Navbar from "@/components/navbar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import { Copy, ExternalLink } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 type Agent = {
-  id: number
-  name: string
-  description: string
-  category: string
-  integration_type: string
-  endpoint_url: string
-  documentation_url: string | null
-  request_format: any
-  response_format: any
-}
+  id: number;
+  name: string;
+  description: string;
+  category: string;
+  integration_type: string;
+  endpoint_url: string;
+  documentation_url: string | null;
+  request_format: any;
+  response_format: any;
+};
 
-export default function AgentIntegrationPage({ params }: { params: { id: string } }) {
-  const [agent, setAgent] = useState<Agent | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
-  const { toast } = useToast()
+export default function AgentIntegrationPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const [agent, setAgent] = useState<Agent | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchAgentDetails = async () => {
       try {
-        const token = localStorage.getItem("token")
+        const token = localStorage.getItem("token");
         if (!token) {
-          router.push("/login?redirect=dashboard/integrations")
-          return
+          router.push("/login?redirect=dashboard/integrations");
+          return;
         }
 
         // In a real implementation, this would be an API call
@@ -44,11 +54,13 @@ export default function AgentIntegrationPage({ params }: { params: { id: string 
           setAgent({
             id: Number.parseInt(params.id),
             name: "TextAnalyzer Pro",
-            description: "Advanced NLP tool for sentiment analysis and text classification.",
+            description:
+              "Advanced NLP tool for sentiment analysis and text classification.",
             category: "NLP",
             integration_type: "REST API",
             endpoint_url: "https://api.aiexchange.com/v1/agents/textanalyzer",
-            documentation_url: "https://docs.aiexchange.com/agents/textanalyzer",
+            documentation_url:
+              "https://docs.aiexchange.com/agents/textanalyzer",
             request_format: {
               text: "string",
               options: {
@@ -68,30 +80,30 @@ export default function AgentIntegrationPage({ params }: { params: { id: string 
               },
               entities: "object[]",
             },
-          })
-          setIsLoading(false)
-        }, 1000)
+          });
+          setIsLoading(false);
+        }, 1000);
       } catch (error) {
-        console.error("Error fetching agent details:", error)
+        console.error("Error fetching agent details:", error);
         toast({
           title: "Error",
           description: "Failed to load agent integration details",
           variant: "destructive",
-        })
-        setIsLoading(false)
+        });
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchAgentDetails()
-  }, [params.id, router, toast])
+    fetchAgentDetails();
+  }, [params.id, router, toast]);
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
+    navigator.clipboard.writeText(text);
     toast({
       title: "Copied",
       description: "Code snippet copied to clipboard",
-    })
-  }
+    });
+  };
 
   if (isLoading) {
     return (
@@ -107,7 +119,7 @@ export default function AgentIntegrationPage({ params }: { params: { id: string 
         </main>
         <Footer />
       </div>
-    )
+    );
   }
 
   if (!agent) {
@@ -118,7 +130,8 @@ export default function AgentIntegrationPage({ params }: { params: { id: string 
           <div className="text-center py-12">
             <h2 className="text-2xl font-bold mb-2">Agent not found</h2>
             <p className="text-muted-foreground mb-6">
-              The agent you're looking for doesn't exist or you don't have access to it.
+              The agent you're looking for doesn't exist or you don't have
+              access to it.
             </p>
             <Button asChild>
               <a href="/dashboard">Return to Dashboard</a>
@@ -127,7 +140,7 @@ export default function AgentIntegrationPage({ params }: { params: { id: string 
         </main>
         <Footer />
       </div>
-    )
+    );
   }
 
   return (
@@ -155,7 +168,9 @@ export default function AgentIntegrationPage({ params }: { params: { id: string 
             <Card>
               <CardHeader>
                 <CardTitle>Integration Overview</CardTitle>
-                <CardDescription>Learn how to integrate with {agent.name}</CardDescription>
+                <CardDescription>
+                  Learn how to integrate with {agent.name}
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -168,13 +183,22 @@ export default function AgentIntegrationPage({ params }: { params: { id: string 
                   <ol className="list-decimal pl-5 space-y-2">
                     <li>
                       Create an API key from the{" "}
-                      <a href="/dashboard/api-keys" className="text-blue-600 hover:underline">
+                      <a
+                        href="/dashboard/api-keys"
+                        className="text-blue-600 hover:underline"
+                      >
                         API Keys
                       </a>{" "}
                       page
                     </li>
-                    <li>Use the API key in the Authorization header of your requests</li>
-                    <li>Make requests to the endpoint URL with the required parameters</li>
+                    <li>
+                      Use the API key in the Authorization header of your
+                      requests
+                    </li>
+                    <li>
+                      Make requests to the endpoint URL with the required
+                      parameters
+                    </li>
                   </ol>
                 </div>
 
@@ -182,7 +206,11 @@ export default function AgentIntegrationPage({ params }: { params: { id: string 
                   <h3 className="text-lg font-medium mb-2">Resources</h3>
                   {agent.documentation_url && (
                     <Button variant="outline" asChild>
-                      <a href={agent.documentation_url} target="_blank" rel="noopener noreferrer">
+                      <a
+                        href={agent.documentation_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         <ExternalLink className="h-4 w-4 mr-2" />
                         Full Documentation
                       </a>
@@ -197,14 +225,22 @@ export default function AgentIntegrationPage({ params }: { params: { id: string 
             <Card>
               <CardHeader>
                 <CardTitle>API Reference</CardTitle>
-                <CardDescription>Endpoint details and request/response formats</CardDescription>
+                <CardDescription>
+                  Endpoint details and request/response formats
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div>
                   <h3 className="text-lg font-medium mb-2">Endpoint</h3>
                   <div className="bg-gray-100 p-4 rounded-md flex items-center justify-between">
-                    <code className="text-sm font-mono">{agent.endpoint_url}</code>
-                    <Button variant="outline" size="sm" onClick={() => copyToClipboard(agent.endpoint_url)}>
+                    <code className="text-sm font-mono">
+                      {agent.endpoint_url}
+                    </code>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => copyToClipboard(agent.endpoint_url)}
+                    >
                       <Copy className="h-4 w-4 mr-2" />
                       Copy
                     </Button>
@@ -213,9 +249,13 @@ export default function AgentIntegrationPage({ params }: { params: { id: string 
 
                 <div>
                   <h3 className="text-lg font-medium mb-2">Authentication</h3>
-                  <p className="mb-2">Include your API key in the request headers:</p>
+                  <p className="mb-2">
+                    Include your API key in the request headers:
+                  </p>
                   <div className="bg-gray-100 p-4 rounded-md">
-                    <code className="text-sm font-mono">Authorization: Bearer YOUR_API_KEY</code>
+                    <code className="text-sm font-mono">
+                      Authorization: Bearer YOUR_API_KEY
+                    </code>
                   </div>
                 </div>
 
@@ -228,7 +268,11 @@ export default function AgentIntegrationPage({ params }: { params: { id: string 
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => copyToClipboard(JSON.stringify(agent.request_format, null, 2))}
+                      onClick={() =>
+                        copyToClipboard(
+                          JSON.stringify(agent.request_format, null, 2)
+                        )
+                      }
                       className="ml-4"
                     >
                       <Copy className="h-4 w-4 mr-2" />
@@ -246,7 +290,11 @@ export default function AgentIntegrationPage({ params }: { params: { id: string 
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => copyToClipboard(JSON.stringify(agent.response_format, null, 2))}
+                      onClick={() =>
+                        copyToClipboard(
+                          JSON.stringify(agent.response_format, null, 2)
+                        )
+                      }
                       className="ml-4"
                     >
                       <Copy className="h-4 w-4 mr-2" />
@@ -262,11 +310,15 @@ export default function AgentIntegrationPage({ params }: { params: { id: string 
             <Card>
               <CardHeader>
                 <CardTitle>Code Examples</CardTitle>
-                <CardDescription>Sample code to help you get started</CardDescription>
+                <CardDescription>
+                  Sample code to help you get started
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div>
-                  <h3 className="text-lg font-medium mb-2">JavaScript / Node.js</h3>
+                  <h3 className="text-lg font-medium mb-2">
+                    JavaScript / Node.js
+                  </h3>
                   <div className="bg-gray-100 p-4 rounded-md relative">
                     <Button
                       variant="outline"
@@ -407,5 +459,5 @@ print(result)`}
       </main>
       <Footer />
     </div>
-  )
+  );
 }
