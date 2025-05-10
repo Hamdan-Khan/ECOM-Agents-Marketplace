@@ -42,12 +42,13 @@ export default function AgentsPage() {
   const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
 
   useEffect(() => {
-    setIsLoading(true);
-    setError("");
-    apiGet<any[]>("/agents")
+
+    setIsLoading(true)
+    setError("")
+    apiGet<any>("/agents")
       .then((data) => {
-        setAgents(data.items);
-        setIsLoading(false);
+        setAgents(data.items || [])
+        setIsLoading(false)
       })
       .catch((err) => {
         setError(err?.message || "Failed to load agents.");
