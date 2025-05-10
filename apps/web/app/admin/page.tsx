@@ -1,354 +1,469 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useToast } from "@/hooks/use-toast"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
-import { apiGet, apiPost } from "@/services/api"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription, DialogTrigger } from "@/components/ui/dialog"
+import Footer from "@/components/footer";
+import Navbar from "@/components/navbar";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import { apiGet, apiPost } from "@/services/api";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function AdminPage() {
-  const [user, setUser] = useState<any>(null)
-  const [isAdmin, setIsAdmin] = useState(false)
-  const [users, setUsers] = useState([])
-  const [agents, setAgents] = useState([])
-  const [orders, setOrders] = useState([])
-  const [payments, setPayments] = useState([])
-  const [loadingUsers, setLoadingUsers] = useState(true)
-  const [loadingAgents, setLoadingAgents] = useState(true)
-  const [loadingOrders, setLoadingOrders] = useState(true)
-  const [loadingPayments, setLoadingPayments] = useState(true)
-  const [errorUsers, setErrorUsers] = useState("")
-  const [errorAgents, setErrorAgents] = useState("")
-  const [errorOrders, setErrorOrders] = useState("")
-  const [errorPayments, setErrorPayments] = useState("")
-  const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
-  const { toast } = useToast()
-  const [newAgent, setNewAgent] = useState({ name: "", description: "", category: "", price: "", subscription_price: "" })
-  const [creatingAgent, setCreatingAgent] = useState(false)
-  const [editAgent, setEditAgent] = useState<any | null>(null)
-  const [editAgentForm, setEditAgentForm] = useState({ name: "", description: "", category: "", price: "", subscription_price: "" })
-  const [editingAgent, setEditingAgent] = useState(false)
-  const [deletingAgentId, setDeletingAgentId] = useState<string | null>(null)
-  const [userPage, setUserPage] = useState(1)
-  const [userPageSize, setUserPageSize] = useState(10)
-  const [userSearch, setUserSearch] = useState("")
-  const [agentPage, setAgentPage] = useState(1)
-  const [agentPageSize, setAgentPageSize] = useState(10)
-  const [agentSearch, setAgentSearch] = useState("")
-  const [orderPage, setOrderPage] = useState(1)
-  const [orderPageSize, setOrderPageSize] = useState(10)
-  const [orderSearch, setOrderSearch] = useState("")
-  const [paymentPage, setPaymentPage] = useState(1)
-  const [paymentPageSize, setPaymentPageSize] = useState(10)
-  const [paymentSearch, setPaymentSearch] = useState("")
-  const [editUser, setEditUser] = useState<any | null>(null)
-  const [editUserForm, setEditUserForm] = useState({ name: "", email: "", role: "USER", token_balance: "" })
-  const [editingUser, setEditingUser] = useState(false)
-  const [viewOrder, setViewOrder] = useState<any | null>(null)
-  const [orderDetails, setOrderDetails] = useState<any | null>(null)
-  const [loadingOrderDetails, setLoadingOrderDetails] = useState(false)
-  const [errorOrderDetails, setErrorOrderDetails] = useState("")
-  const [viewPayment, setViewPayment] = useState<any | null>(null)
-  const [paymentDetails, setPaymentDetails] = useState<any | null>(null)
-  const [loadingPaymentDetails, setLoadingPaymentDetails] = useState(false)
-  const [errorPaymentDetails, setErrorPaymentDetails] = useState("")
+  const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [agents, setAgents] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [payments, setPayments] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(true);
+  const [loadingAgents, setLoadingAgents] = useState(true);
+  const [loadingOrders, setLoadingOrders] = useState(true);
+  const [loadingPayments, setLoadingPayments] = useState(true);
+  const [errorUsers, setErrorUsers] = useState("");
+  const [errorAgents, setErrorAgents] = useState("");
+  const [errorOrders, setErrorOrders] = useState("");
+  const [errorPayments, setErrorPayments] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  const { toast } = useToast();
+  const [newAgent, setNewAgent] = useState({
+    name: "",
+    description: "",
+    category: "",
+    price: "",
+    subscription_price: "",
+  });
+  const [creatingAgent, setCreatingAgent] = useState(false);
+  const [editAgent, setEditAgent] = useState<any | null>(null);
+  const [editAgentForm, setEditAgentForm] = useState({
+    name: "",
+    description: "",
+    category: "",
+    price: "",
+    subscription_price: "",
+  });
+  const [editingAgent, setEditingAgent] = useState(false);
+  const [deletingAgentId, setDeletingAgentId] = useState<string | null>(null);
+  const [userPage, setUserPage] = useState(1);
+  const [userPageSize, setUserPageSize] = useState(10);
+  const [userSearch, setUserSearch] = useState("");
+  const [agentPage, setAgentPage] = useState(1);
+  const [agentPageSize, setAgentPageSize] = useState(10);
+  const [agentSearch, setAgentSearch] = useState("");
+  const [orderPage, setOrderPage] = useState(1);
+  const [orderPageSize, setOrderPageSize] = useState(10);
+  const [orderSearch, setOrderSearch] = useState("");
+  const [paymentPage, setPaymentPage] = useState(1);
+  const [paymentPageSize, setPaymentPageSize] = useState(10);
+  const [paymentSearch, setPaymentSearch] = useState("");
+  const [editUser, setEditUser] = useState<any | null>(null);
+  const [editUserForm, setEditUserForm] = useState({
+    name: "",
+    email: "",
+    role: "USER",
+    token_balance: "",
+  });
+  const [editingUser, setEditingUser] = useState(false);
+  const [viewOrder, setViewOrder] = useState<any | null>(null);
+  const [orderDetails, setOrderDetails] = useState<any | null>(null);
+  const [loadingOrderDetails, setLoadingOrderDetails] = useState(false);
+  const [errorOrderDetails, setErrorOrderDetails] = useState("");
+  const [viewPayment, setViewPayment] = useState<any | null>(null);
+  const [paymentDetails, setPaymentDetails] = useState<any | null>(null);
+  const [loadingPaymentDetails, setLoadingPaymentDetails] = useState(false);
+  const [errorPaymentDetails, setErrorPaymentDetails] = useState("");
 
   useEffect(() => {
     const checkAdminAndFetch = async () => {
-      setIsLoading(true)
+      setIsLoading(true);
       try {
-        const profile = await apiGet<any>("/users/profile")
-        setUser(profile)
+        const profile = await apiGet<any>("/users/profile");
+        setUser(profile);
         if (profile.role !== "ADMIN") {
-          setIsAdmin(false)
-          setIsLoading(false)
-          return
+          setIsAdmin(false);
+          setIsLoading(false);
+          return;
         }
-        setIsAdmin(true)
+        setIsAdmin(true);
         // Fetch all users
-        setLoadingUsers(true)
+        setLoadingUsers(true);
         try {
-          const usersRes = await apiGet<any>("/users")
-          setUsers(usersRes.items || [])
-          setErrorUsers("")
+          const usersRes = await apiGet<any>("/users");
+          setUsers(usersRes.items || []);
+          setErrorUsers("");
         } catch (e: any) {
-          setErrorUsers(e.message || "Failed to fetch users")
+          setErrorUsers(e.message || "Failed to fetch users");
         } finally {
-          setLoadingUsers(false)
+          setLoadingUsers(false);
         }
         // Fetch all agents
-        setLoadingAgents(true)
+        setLoadingAgents(true);
         try {
-          const agentsRes = await apiGet<any>("/agents")
-          setAgents(agentsRes.items || [])
-          setErrorAgents("")
+          const agentsRes = await apiGet<any>("/agents");
+          setAgents(agentsRes.items || []);
+          setErrorAgents("");
         } catch (e: any) {
-          setErrorAgents(e.message || "Failed to fetch agents")
+          setErrorAgents(e.message || "Failed to fetch agents");
         } finally {
-          setLoadingAgents(false)
+          setLoadingAgents(false);
         }
         // Fetch all orders
-        setLoadingOrders(true)
+        setLoadingOrders(true);
         try {
-          const ordersRes = await apiGet<any>("/orders")
-          setOrders(ordersRes.items || [])
-          setErrorOrders("")
+          const ordersRes = await apiGet<any>("/orders");
+          setOrders(ordersRes.items || []);
+          setErrorOrders("");
         } catch (e: any) {
-          setErrorOrders(e.message || "Failed to fetch orders")
+          setErrorOrders(e.message || "Failed to fetch orders");
         } finally {
-          setLoadingOrders(false)
+          setLoadingOrders(false);
         }
         // Fetch all payments
-        setLoadingPayments(true)
+        setLoadingPayments(true);
         try {
-          const paymentsRes = await apiGet<any>("/payments")
-          setPayments(paymentsRes || [])
-          setErrorPayments("")
+          const paymentsRes = await apiGet<any>("/payments");
+          setPayments(paymentsRes || []);
+          setErrorPayments("");
         } catch (e: any) {
-          setErrorPayments(e.message || "Failed to fetch payments")
+          setErrorPayments(e.message || "Failed to fetch payments");
         } finally {
-          setLoadingPayments(false)
+          setLoadingPayments(false);
         }
       } catch (e: any) {
-        setUser(null)
-        setIsAdmin(false)
+        setUser(null);
+        setIsAdmin(false);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
-    checkAdminAndFetch()
-  }, [])
+    };
+    checkAdminAndFetch();
+  }, []);
 
   const handleNewAgentChange = (field: string, value: string) => {
-    setNewAgent({ ...newAgent, [field]: value })
-  }
+    setNewAgent({ ...newAgent, [field]: value });
+  };
 
   const handleCreateAgent = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!newAgent.name || !newAgent.description || !newAgent.category || !newAgent.price) {
-      toast({ title: "Validation Error", description: "Please fill in all required fields.", variant: "destructive" })
-      return
+    e.preventDefault();
+    if (
+      !newAgent.name ||
+      !newAgent.description ||
+      !newAgent.category ||
+      !newAgent.price
+    ) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
     }
-    setCreatingAgent(true)
+    setCreatingAgent(true);
     try {
       await apiPost("/agents", {
         name: newAgent.name,
         description: newAgent.description,
         category: newAgent.category,
         price: parseFloat(newAgent.price),
-        subscription_price: newAgent.subscription_price ? parseFloat(newAgent.subscription_price) : undefined
-      })
-      toast({ title: "Agent Created", description: `${newAgent.name} has been created.` })
-      setNewAgent({ name: "", description: "", category: "", price: "", subscription_price: "" })
+        subscription_price: newAgent.subscription_price
+          ? parseFloat(newAgent.subscription_price)
+          : undefined,
+      });
+      toast({
+        title: "Agent Created",
+        description: `${newAgent.name} has been created.`,
+      });
+      setNewAgent({
+        name: "",
+        description: "",
+        category: "",
+        price: "",
+        subscription_price: "",
+      });
       // Refresh agent list
-      setLoadingAgents(true)
-      const agentsRes = await apiGet<any>("/agents")
-      setAgents(agentsRes.items || [])
+      setLoadingAgents(true);
+      const agentsRes = await apiGet<any>("/agents");
+      setAgents(agentsRes.items || []);
     } catch (e: any) {
-      toast({ title: "Error", description: e.message || "Failed to create agent.", variant: "destructive" })
+      toast({
+        title: "Error",
+        description: e.message || "Failed to create agent.",
+        variant: "destructive",
+      });
     } finally {
-      setCreatingAgent(false)
-      setLoadingAgents(false)
+      setCreatingAgent(false);
+      setLoadingAgents(false);
     }
-  }
+  };
 
   const openEditAgent = (agent: any) => {
-    setEditAgent(agent)
+    setEditAgent(agent);
     setEditAgentForm({
       name: agent.name || "",
       description: agent.description || "",
       category: agent.category || "",
       price: agent.price?.toString() || "",
-      subscription_price: agent.subscription_price?.toString() || ""
-    })
-  }
+      subscription_price: agent.subscription_price?.toString() || "",
+    });
+  };
 
   const closeEditAgent = () => {
-    setEditAgent(null)
-  }
+    setEditAgent(null);
+  };
 
   const handleEditAgentChange = (field: string, value: string) => {
-    setEditAgentForm({ ...editAgentForm, [field]: value })
-  }
+    setEditAgentForm({ ...editAgentForm, [field]: value });
+  };
 
   const handleUpdateAgent = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!editAgent) return
-    if (!editAgentForm.name || !editAgentForm.description || !editAgentForm.category || !editAgentForm.price) {
-      toast({ title: "Validation Error", description: "Please fill in all required fields.", variant: "destructive" })
-      return
+    e.preventDefault();
+    if (!editAgent) return;
+    if (
+      !editAgentForm.name ||
+      !editAgentForm.description ||
+      !editAgentForm.category ||
+      !editAgentForm.price
+    ) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
     }
-    setEditingAgent(true)
+    setEditingAgent(true);
     try {
-      await apiPost(`/agents/${editAgent.id}`, {
-        name: editAgentForm.name,
-        description: editAgentForm.description,
-        category: editAgentForm.category,
-        price: parseFloat(editAgentForm.price),
-        subscription_price: editAgentForm.subscription_price ? parseFloat(editAgentForm.subscription_price) : undefined
-      }, { method: "PATCH" })
-      toast({ title: "Agent Updated", description: `${editAgentForm.name} has been updated.` })
+      await apiPost(
+        `/agents/${editAgent.id}`,
+        {
+          name: editAgentForm.name,
+          description: editAgentForm.description,
+          category: editAgentForm.category,
+          price: parseFloat(editAgentForm.price),
+          subscription_price: editAgentForm.subscription_price
+            ? parseFloat(editAgentForm.subscription_price)
+            : undefined,
+        },
+        { method: "PATCH" }
+      );
+      toast({
+        title: "Agent Updated",
+        description: `${editAgentForm.name} has been updated.`,
+      });
       // Refresh agent list
-      setLoadingAgents(true)
-      const agentsRes = await apiGet<any>("/agents")
-      setAgents(agentsRes.items || [])
-      closeEditAgent()
+      setLoadingAgents(true);
+      const agentsRes = await apiGet<any>("/agents");
+      setAgents(agentsRes.items || []);
+      closeEditAgent();
     } catch (e: any) {
-      toast({ title: "Error", description: e.message || "Failed to update agent.", variant: "destructive" })
+      toast({
+        title: "Error",
+        description: e.message || "Failed to update agent.",
+        variant: "destructive",
+      });
     } finally {
-      setEditingAgent(false)
-      setLoadingAgents(false)
+      setEditingAgent(false);
+      setLoadingAgents(false);
     }
-  }
+  };
 
   const handleDeleteAgent = async (agent: any) => {
-    if (!window.confirm(`Are you sure you want to delete agent \"${agent.name}\"? This action cannot be undone.`)) return
-    setDeletingAgentId(agent.id)
+    if (
+      !window.confirm(
+        `Are you sure you want to delete agent \"${agent.name}\"? This action cannot be undone.`
+      )
+    )
+      return;
+    setDeletingAgentId(agent.id);
     try {
-      await apiPost(`/agents/${agent.id}`, {}, { method: "DELETE" })
-      toast({ title: "Agent Deleted", description: `${agent.name} has been deleted.` })
+      await apiPost(`/agents/${agent.id}`, {}, { method: "DELETE" });
+      toast({
+        title: "Agent Deleted",
+        description: `${agent.name} has been deleted.`,
+      });
       // Refresh agent list
-      setLoadingAgents(true)
-      const agentsRes = await apiGet<any>("/agents")
-      setAgents(agentsRes.items || [])
+      setLoadingAgents(true);
+      const agentsRes = await apiGet<any>("/agents");
+      setAgents(agentsRes.items || []);
     } catch (e: any) {
-      toast({ title: "Error", description: e.message || "Failed to delete agent.", variant: "destructive" })
+      toast({
+        title: "Error",
+        description: e.message || "Failed to delete agent.",
+        variant: "destructive",
+      });
     } finally {
-      setDeletingAgentId(null)
-      setLoadingAgents(false)
+      setDeletingAgentId(null);
+      setLoadingAgents(false);
     }
-  }
+  };
 
   const openEditUser = (user: any) => {
-    setEditUser(user)
+    setEditUser(user);
     setEditUserForm({
       name: user.name || "",
       email: user.email || "",
       role: user.role || "USER",
-      token_balance: user.token_balance?.toString() || ""
-    })
-  }
+      token_balance: user.token_balance?.toString() || "",
+    });
+  };
 
   const closeEditUser = () => {
-    setEditUser(null)
-  }
+    setEditUser(null);
+  };
 
   const handleEditUserChange = (field: string, value: string) => {
-    setEditUserForm({ ...editUserForm, [field]: value })
-  }
+    setEditUserForm({ ...editUserForm, [field]: value });
+  };
 
   const handleUpdateUser = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!editUser) return
+    e.preventDefault();
+    if (!editUser) return;
     if (!editUserForm.name || !editUserForm.email || !editUserForm.role) {
-      toast({ title: "Validation Error", description: "Please fill in all required fields.", variant: "destructive" })
-      return
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
     }
-    setEditingUser(true)
+    setEditingUser(true);
     try {
-      await apiPost(`/users/${editUser.id}`, {
-        name: editUserForm.name,
-        email: editUserForm.email,
-        role: editUserForm.role,
-        token_balance: parseFloat(editUserForm.token_balance)
-      }, { method: "PATCH" })
-      toast({ title: "User Updated", description: `${editUserForm.name} has been updated.` })
+      await apiPost(
+        `/users/${editUser.id}`,
+        {
+          name: editUserForm.name,
+          email: editUserForm.email,
+          role: editUserForm.role,
+          token_balance: parseFloat(editUserForm.token_balance),
+        },
+        { method: "PATCH" }
+      );
+      toast({
+        title: "User Updated",
+        description: `${editUserForm.name} has been updated.`,
+      });
       // Refresh user list
-      setLoadingUsers(true)
-      const usersRes = await apiGet<any>("/users")
-      setUsers(usersRes.items || [])
-      closeEditUser()
+      setLoadingUsers(true);
+      const usersRes = await apiGet<any>("/users");
+      setUsers(usersRes.items || []);
+      closeEditUser();
     } catch (e: any) {
-      toast({ title: "Error", description: e.message || "Failed to update user.", variant: "destructive" })
+      toast({
+        title: "Error",
+        description: e.message || "Failed to update user.",
+        variant: "destructive",
+      });
     } finally {
-      setEditingUser(false)
-      setLoadingUsers(false)
+      setEditingUser(false);
+      setLoadingUsers(false);
     }
-  }
+  };
 
   const handleViewOrder = async (order: any) => {
-    setViewOrder(order)
-    setOrderDetails(null)
-    setErrorOrderDetails("")
-    setLoadingOrderDetails(true)
+    setViewOrder(order);
+    setOrderDetails(null);
+    setErrorOrderDetails("");
+    setLoadingOrderDetails(true);
     try {
-      const details = await apiGet<any>(`/orders/${order.id}`)
-      setOrderDetails(details)
+      const details = await apiGet<any>(`/orders/${order.id}`);
+      setOrderDetails(details);
     } catch (e: any) {
-      setErrorOrderDetails(e.message || "Failed to fetch order details")
+      setErrorOrderDetails(e.message || "Failed to fetch order details");
     } finally {
-      setLoadingOrderDetails(false)
+      setLoadingOrderDetails(false);
     }
-  }
+  };
 
   const closeViewOrder = () => {
-    setViewOrder(null)
-    setOrderDetails(null)
-    setErrorOrderDetails("")
-  }
+    setViewOrder(null);
+    setOrderDetails(null);
+    setErrorOrderDetails("");
+  };
 
   const handleViewPayment = async (payment: any) => {
-    setViewPayment(payment)
-    setPaymentDetails(null)
-    setErrorPaymentDetails("")
-    setLoadingPaymentDetails(true)
+    setViewPayment(payment);
+    setPaymentDetails(null);
+    setErrorPaymentDetails("");
+    setLoadingPaymentDetails(true);
     try {
-      const details = await apiGet<any>(`/payments/${payment.id}`)
-      setPaymentDetails(details)
+      const details = await apiGet<any>(`/payments/${payment.id}`);
+      setPaymentDetails(details);
     } catch (e: any) {
-      setErrorPaymentDetails(e.message || "Failed to fetch payment details")
+      setErrorPaymentDetails(e.message || "Failed to fetch payment details");
     } finally {
-      setLoadingPaymentDetails(false)
+      setLoadingPaymentDetails(false);
     }
-  }
+  };
 
   const closeViewPayment = () => {
-    setViewPayment(null)
-    setPaymentDetails(null)
-    setErrorPaymentDetails("")
-  }
+    setViewPayment(null);
+    setPaymentDetails(null);
+    setErrorPaymentDetails("");
+  };
 
   // Filter and paginate users
-  const filteredUsers = users.filter((u: any) =>
-    u.name.toLowerCase().includes(userSearch.toLowerCase()) ||
-    u.email.toLowerCase().includes(userSearch.toLowerCase())
-  )
-  const pagedUsers = filteredUsers.slice((userPage - 1) * userPageSize, userPage * userPageSize)
+  const filteredUsers = users.filter(
+    (u: any) =>
+      u.name.toLowerCase().includes(userSearch.toLowerCase()) ||
+      u.email.toLowerCase().includes(userSearch.toLowerCase())
+  );
+  const pagedUsers = filteredUsers.slice(
+    (userPage - 1) * userPageSize,
+    userPage * userPageSize
+  );
 
   // Filter and paginate agents
-  const filteredAgents = agents.filter((a: any) =>
-    a.name.toLowerCase().includes(agentSearch.toLowerCase()) ||
-    a.category.toLowerCase().includes(agentSearch.toLowerCase())
-  )
-  const pagedAgents = filteredAgents.slice((agentPage - 1) * agentPageSize, agentPage * agentPageSize)
+  const filteredAgents = agents.filter(
+    (a: any) =>
+      a.name.toLowerCase().includes(agentSearch.toLowerCase()) ||
+      a.category.toLowerCase().includes(agentSearch.toLowerCase())
+  );
+  const pagedAgents = filteredAgents.slice(
+    (agentPage - 1) * agentPageSize,
+    agentPage * agentPageSize
+  );
 
   // Filter and paginate orders
-  const filteredOrders = orders.filter((o: any) =>
-    o.id.toString().includes(orderSearch) ||
-    o.user_id?.toString().includes(orderSearch) ||
-    o.agent_id?.toString().includes(orderSearch)
-  )
-  const pagedOrders = filteredOrders.slice((orderPage - 1) * orderPageSize, orderPage * orderPageSize)
+  const filteredOrders = orders.filter(
+    (o: any) =>
+      o.id.toString().includes(orderSearch) ||
+      o.user_id?.toString().includes(orderSearch) ||
+      o.agent_id?.toString().includes(orderSearch)
+  );
+  const pagedOrders = filteredOrders.slice(
+    (orderPage - 1) * orderPageSize,
+    orderPage * orderPageSize
+  );
 
   // Filter and paginate payments
-  const filteredPayments = payments.filter((p: any) =>
-    p.id.toString().includes(paymentSearch) ||
-    p.order_id?.toString().includes(paymentSearch)
-  )
-  const pagedPayments = filteredPayments.slice((paymentPage - 1) * paymentPageSize, paymentPage * paymentPageSize)
+  const filteredPayments = payments.filter(
+    (p: any) =>
+      p.id.toString().includes(paymentSearch) ||
+      p.order_id?.toString().includes(paymentSearch)
+  );
+  const pagedPayments = filteredPayments.slice(
+    (paymentPage - 1) * paymentPageSize,
+    paymentPage * paymentPageSize
+  );
 
   if (isLoading) {
     return (
@@ -363,7 +478,7 @@ export default function AdminPage() {
         </main>
         <Footer />
       </div>
-    )
+    );
   }
 
   if (!user || !isAdmin) {
@@ -373,7 +488,9 @@ export default function AdminPage() {
         <main className="flex-grow container mx-auto px-4 py-8">
           <div className="text-center py-12">
             <h2 className="text-2xl font-bold mb-2">Access Denied</h2>
-            <p className="text-muted-foreground mb-6">You don't have permission to access the admin panel.</p>
+            <p className="text-muted-foreground mb-6">
+              You don't have permission to access the admin panel.
+            </p>
             <Button asChild>
               <a href="/">Return to Home</a>
             </Button>
@@ -381,7 +498,7 @@ export default function AdminPage() {
         </main>
         <Footer />
       </div>
-    )
+    );
   }
 
   return (
@@ -412,16 +529,23 @@ export default function AdminPage() {
                     placeholder="Search users..."
                     className="border rounded px-2 py-1 mr-2"
                     value={userSearch}
-                    onChange={e => { setUserSearch(e.target.value); setUserPage(1) }}
+                    onChange={(e) => {
+                      setUserSearch(e.target.value);
+                      setUserPage(1);
+                    }}
                   />
-                  <span className="text-sm text-muted-foreground">{filteredUsers.length} users</span>
+                  <span className="text-sm text-muted-foreground">
+                    {filteredUsers.length} users
+                  </span>
                 </div>
                 {loadingUsers ? (
                   <div>Loading users...</div>
                 ) : errorUsers ? (
                   <div className="text-red-600">{errorUsers}</div>
                 ) : filteredUsers.length === 0 ? (
-                  <div className="text-muted-foreground py-8 text-center">No users found.</div>
+                  <div className="text-muted-foreground py-8 text-center">
+                    No users found.
+                  </div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full">
@@ -444,43 +568,151 @@ export default function AdminPage() {
                             <td className="py-3">{u.role}</td>
                             <td className="py-3">{u.token_balance}</td>
                             <td className="py-3">
-                              <Dialog open={!!editUser} onOpenChange={v => { if (!v) closeEditUser() }}>
+                              <Dialog
+                                open={!!editUser}
+                                onOpenChange={(v) => {
+                                  if (!v) closeEditUser();
+                                }}
+                              >
                                 <DialogTrigger asChild>
-                                  <Button size="sm" variant="outline" onClick={() => openEditUser(u)}>Edit</Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => openEditUser(u)}
+                                  >
+                                    Edit
+                                  </Button>
                                 </DialogTrigger>
                                 <DialogContent>
                                   <DialogHeader>
                                     <DialogTitle>Edit User</DialogTitle>
-                                    <DialogDescription>Update user details</DialogDescription>
+                                    <DialogDescription>
+                                      Update user details
+                                    </DialogDescription>
                                   </DialogHeader>
-                                  <form onSubmit={handleUpdateUser} className="space-y-4">
+                                  <form
+                                    onSubmit={handleUpdateUser}
+                                    className="space-y-4"
+                                  >
                                     <div>
-                                      <label className="block text-sm font-medium mb-1" htmlFor="edit-admin-user-name">Name</label>
-                                      <input id="edit-admin-user-name" type="text" className="w-full border rounded px-3 py-2" value={editUserForm.name} onChange={e => handleEditUserChange("name", e.target.value)} required />
+                                      <label
+                                        className="block text-sm font-medium mb-1"
+                                        htmlFor="edit-admin-user-name"
+                                      >
+                                        Name
+                                      </label>
+                                      <input
+                                        id="edit-admin-user-name"
+                                        type="text"
+                                        className="w-full border rounded px-3 py-2"
+                                        value={editUserForm.name}
+                                        onChange={(e) =>
+                                          handleEditUserChange(
+                                            "name",
+                                            e.target.value
+                                          )
+                                        }
+                                        required
+                                      />
                                     </div>
                                     <div>
-                                      <label className="block text-sm font-medium mb-1" htmlFor="edit-admin-user-email">Email</label>
-                                      <input id="edit-admin-user-email" type="email" className="w-full border rounded px-3 py-2" value={editUserForm.email} onChange={e => handleEditUserChange("email", e.target.value)} required />
+                                      <label
+                                        className="block text-sm font-medium mb-1"
+                                        htmlFor="edit-admin-user-email"
+                                      >
+                                        Email
+                                      </label>
+                                      <input
+                                        id="edit-admin-user-email"
+                                        type="email"
+                                        className="w-full border rounded px-3 py-2"
+                                        value={editUserForm.email}
+                                        onChange={(e) =>
+                                          handleEditUserChange(
+                                            "email",
+                                            e.target.value
+                                          )
+                                        }
+                                        required
+                                      />
                                     </div>
                                     <div>
-                                      <label className="block text-sm font-medium mb-1" htmlFor="edit-admin-user-role">Role</label>
-                                      <select id="edit-admin-user-role" className="w-full border rounded px-3 py-2" value={editUserForm.role} onChange={e => handleEditUserChange("role", e.target.value)} required>
+                                      <label
+                                        className="block text-sm font-medium mb-1"
+                                        htmlFor="edit-admin-user-role"
+                                      >
+                                        Role
+                                      </label>
+                                      <select
+                                        id="edit-admin-user-role"
+                                        className="w-full border rounded px-3 py-2"
+                                        value={editUserForm.role}
+                                        onChange={(e) =>
+                                          handleEditUserChange(
+                                            "role",
+                                            e.target.value
+                                          )
+                                        }
+                                        required
+                                      >
                                         <option value="USER">User</option>
                                         <option value="ADMIN">Admin</option>
                                       </select>
                                     </div>
                                     <div>
-                                      <label className="block text-sm font-medium mb-1" htmlFor="edit-admin-user-token-balance">Token Balance</label>
-                                      <input id="edit-admin-user-token-balance" type="number" step="0.01" min="0" className="w-full border rounded px-3 py-2" value={editUserForm.token_balance} onChange={e => handleEditUserChange("token_balance", e.target.value)} required />
+                                      <label
+                                        className="block text-sm font-medium mb-1"
+                                        htmlFor="edit-admin-user-token-balance"
+                                      >
+                                        Token Balance
+                                      </label>
+                                      <input
+                                        id="edit-admin-user-token-balance"
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        className="w-full border rounded px-3 py-2"
+                                        value={editUserForm.token_balance}
+                                        onChange={(e) =>
+                                          handleEditUserChange(
+                                            "token_balance",
+                                            e.target.value
+                                          )
+                                        }
+                                        required
+                                      />
                                     </div>
                                     <DialogFooter>
-                                      <Button type="submit" disabled={editingUser}>{editingUser ? "Saving..." : "Save Changes"}</Button>
-                                      <Button type="button" variant="outline" onClick={closeEditUser}>Cancel</Button>
+                                      <Button
+                                        type="submit"
+                                        disabled={editingUser}
+                                      >
+                                        {editingUser
+                                          ? "Saving..."
+                                          : "Save Changes"}
+                                      </Button>
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={closeEditUser}
+                                      >
+                                        Cancel
+                                      </Button>
                                     </DialogFooter>
                                   </form>
                                 </DialogContent>
                               </Dialog>
-                              <Button size="sm" variant="destructive" className="ml-2" onClick={() => handleDeleteAgent(u)} disabled={deletingAgentId === u.id}>{deletingAgentId === u.id ? "Deleting..." : "Delete"}</Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="ml-2"
+                                onClick={() => handleDeleteAgent(u)}
+                                disabled={deletingAgentId === u.id}
+                              >
+                                {deletingAgentId === u.id
+                                  ? "Deleting..."
+                                  : "Delete"}
+                              </Button>
                             </td>
                           </tr>
                         ))}
@@ -489,11 +721,47 @@ export default function AdminPage() {
                   </div>
                 )}
                 <div className="flex items-center justify-between mt-2">
-                  <Button size="sm" variant="outline" onClick={() => setUserPage(p => Math.max(1, p - 1))} disabled={userPage === 1}>Prev</Button>
-                  <span className="text-sm">Page {userPage} of {Math.ceil(filteredUsers.length / userPageSize)}</span>
-                  <Button size="sm" variant="outline" onClick={() => setUserPage(p => p < Math.ceil(filteredUsers.length / userPageSize) ? p + 1 : p)} disabled={userPage >= Math.ceil(filteredUsers.length / userPageSize)}>Next</Button>
-                  <select className="ml-2 border rounded px-1 py-0.5" value={userPageSize} onChange={e => { setUserPageSize(Number(e.target.value)); setUserPage(1) }}>
-                    {[10, 20, 50].map(size => <option key={size} value={size}>{size} / page</option>)}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setUserPage((p) => Math.max(1, p - 1))}
+                    disabled={userPage === 1}
+                  >
+                    Prev
+                  </Button>
+                  <span className="text-sm">
+                    Page {userPage} of{" "}
+                    {Math.ceil(filteredUsers.length / userPageSize)}
+                  </span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      setUserPage((p) =>
+                        p < Math.ceil(filteredUsers.length / userPageSize)
+                          ? p + 1
+                          : p
+                      )
+                    }
+                    disabled={
+                      userPage >= Math.ceil(filteredUsers.length / userPageSize)
+                    }
+                  >
+                    Next
+                  </Button>
+                  <select
+                    className="ml-2 border rounded px-1 py-0.5"
+                    value={userPageSize}
+                    onChange={(e) => {
+                      setUserPageSize(Number(e.target.value));
+                      setUserPage(1);
+                    }}
+                  >
+                    {[10, 20, 50].map((size) => (
+                      <option key={size} value={size}>
+                        {size} / page
+                      </option>
+                    ))}
                   </select>
                 </div>
               </CardContent>
@@ -507,28 +775,108 @@ export default function AdminPage() {
                 <CardDescription>All AI agents</CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleCreateAgent} className="mb-6 space-y-4 max-w-xl">
+                <form
+                  onSubmit={handleCreateAgent}
+                  className="mb-6 space-y-4 max-w-xl"
+                >
                   <div>
-                    <label className="block text-sm font-medium mb-1" htmlFor="admin-agent-name">Name</label>
-                    <input id="admin-agent-name" type="text" className="w-full border rounded px-3 py-2" value={newAgent.name} onChange={e => handleNewAgentChange("name", e.target.value)} required />
+                    <label
+                      className="block text-sm font-medium mb-1"
+                      htmlFor="admin-agent-name"
+                    >
+                      Name
+                    </label>
+                    <input
+                      id="admin-agent-name"
+                      type="text"
+                      className="w-full border rounded px-3 py-2"
+                      value={newAgent.name}
+                      onChange={(e) =>
+                        handleNewAgentChange("name", e.target.value)
+                      }
+                      required
+                    />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1" htmlFor="admin-agent-description">Description</label>
-                    <textarea id="admin-agent-description" className="w-full border rounded px-3 py-2" value={newAgent.description} onChange={e => handleNewAgentChange("description", e.target.value)} required />
+                    <label
+                      className="block text-sm font-medium mb-1"
+                      htmlFor="admin-agent-description"
+                    >
+                      Description
+                    </label>
+                    <textarea
+                      id="admin-agent-description"
+                      className="w-full border rounded px-3 py-2"
+                      value={newAgent.description}
+                      onChange={(e) =>
+                        handleNewAgentChange("description", e.target.value)
+                      }
+                      required
+                    />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1" htmlFor="admin-agent-category">Category</label>
-                    <input id="admin-agent-category" type="text" className="w-full border rounded px-3 py-2" value={newAgent.category} onChange={e => handleNewAgentChange("category", e.target.value)} required />
+                    <label
+                      className="block text-sm font-medium mb-1"
+                      htmlFor="admin-agent-category"
+                    >
+                      Category
+                    </label>
+                    <input
+                      id="admin-agent-category"
+                      type="text"
+                      className="w-full border rounded px-3 py-2"
+                      value={newAgent.category}
+                      onChange={(e) =>
+                        handleNewAgentChange("category", e.target.value)
+                      }
+                      required
+                    />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1" htmlFor="admin-agent-price">Price ($)</label>
-                    <input id="admin-agent-price" type="number" step="0.01" min="0" className="w-full border rounded px-3 py-2" value={newAgent.price} onChange={e => handleNewAgentChange("price", e.target.value)} required />
+                    <label
+                      className="block text-sm font-medium mb-1"
+                      htmlFor="admin-agent-price"
+                    >
+                      Price ($)
+                    </label>
+                    <input
+                      id="admin-agent-price"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      className="w-full border rounded px-3 py-2"
+                      value={newAgent.price}
+                      onChange={(e) =>
+                        handleNewAgentChange("price", e.target.value)
+                      }
+                      required
+                    />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1" htmlFor="admin-agent-subscription-price">Subscription Price ($/month)</label>
-                    <input id="admin-agent-subscription-price" type="number" step="0.01" min="0" className="w-full border rounded px-3 py-2" value={newAgent.subscription_price} onChange={e => handleNewAgentChange("subscription_price", e.target.value)} />
+                    <label
+                      className="block text-sm font-medium mb-1"
+                      htmlFor="admin-agent-subscription-price"
+                    >
+                      Subscription Price ($/month)
+                    </label>
+                    <input
+                      id="admin-agent-subscription-price"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      className="w-full border rounded px-3 py-2"
+                      value={newAgent.subscription_price}
+                      onChange={(e) =>
+                        handleNewAgentChange(
+                          "subscription_price",
+                          e.target.value
+                        )
+                      }
+                    />
                   </div>
-                  <Button type="submit" disabled={creatingAgent}>{creatingAgent ? "Creating..." : "Create Agent"}</Button>
+                  <Button type="submit" disabled={creatingAgent}>
+                    {creatingAgent ? "Creating..." : "Create Agent"}
+                  </Button>
                 </form>
                 {loadingAgents ? (
                   <div>Loading agents...</div>
@@ -543,7 +891,9 @@ export default function AdminPage() {
                           <th className="pb-2 font-medium">Name</th>
                           <th className="pb-2 font-medium">Category</th>
                           <th className="pb-2 font-medium">Price</th>
-                          <th className="pb-2 font-medium">Subscription Price</th>
+                          <th className="pb-2 font-medium">
+                            Subscription Price
+                          </th>
                           <th className="pb-2 font-medium">Created By</th>
                           <th className="pb-2 font-medium">Actions</th>
                         </tr>
@@ -554,48 +904,179 @@ export default function AdminPage() {
                             <td className="py-3">{agent.id}</td>
                             <td className="py-3">{agent.name}</td>
                             <td className="py-3">{agent.category}</td>
-                            <td className="py-3">${agent.price?.toFixed ? agent.price.toFixed(2) : agent.price}</td>
-                            <td className="py-3">${agent.subscription_price?.toFixed ? agent.subscription_price.toFixed(2) : agent.subscription_price}</td>
+                            <td className="py-3">
+                              $
+                              {agent.price?.toFixed
+                                ? agent.price.toFixed(2)
+                                : agent.price}
+                            </td>
+                            <td className="py-3">
+                              $
+                              {agent.subscription_price?.toFixed
+                                ? agent.subscription_price.toFixed(2)
+                                : agent.subscription_price}
+                            </td>
                             <td className="py-3">{agent.created_by}</td>
                             <td className="py-3">
                               <Dialog>
                                 <DialogTrigger asChild>
-                                  <Button size="sm" variant="outline" onClick={() => openEditAgent(agent)}>Edit</Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => openEditAgent(agent)}
+                                  >
+                                    Edit
+                                  </Button>
                                 </DialogTrigger>
                                 <DialogContent>
                                   <DialogHeader>
                                     <DialogTitle>Edit Agent</DialogTitle>
-                                    <DialogDescription>Update agent details</DialogDescription>
+                                    <DialogDescription>
+                                      Update agent details
+                                    </DialogDescription>
                                   </DialogHeader>
-                                  <form onSubmit={handleUpdateAgent} className="space-y-4">
+                                  <form
+                                    onSubmit={handleUpdateAgent}
+                                    className="space-y-4"
+                                  >
                                     <div>
-                                      <label className="block text-sm font-medium mb-1" htmlFor="edit-admin-agent-name">Name</label>
-                                      <input id="edit-admin-agent-name" type="text" className="w-full border rounded px-3 py-2" value={editAgentForm.name} onChange={e => handleEditAgentChange("name", e.target.value)} required />
+                                      <label
+                                        className="block text-sm font-medium mb-1"
+                                        htmlFor="edit-admin-agent-name"
+                                      >
+                                        Name
+                                      </label>
+                                      <input
+                                        id="edit-admin-agent-name"
+                                        type="text"
+                                        className="w-full border rounded px-3 py-2"
+                                        value={editAgentForm.name}
+                                        onChange={(e) =>
+                                          handleEditAgentChange(
+                                            "name",
+                                            e.target.value
+                                          )
+                                        }
+                                        required
+                                      />
                                     </div>
                                     <div>
-                                      <label className="block text-sm font-medium mb-1" htmlFor="edit-admin-agent-description">Description</label>
-                                      <textarea id="edit-admin-agent-description" className="w-full border rounded px-3 py-2" value={editAgentForm.description} onChange={e => handleEditAgentChange("description", e.target.value)} required />
+                                      <label
+                                        className="block text-sm font-medium mb-1"
+                                        htmlFor="edit-admin-agent-description"
+                                      >
+                                        Description
+                                      </label>
+                                      <textarea
+                                        id="edit-admin-agent-description"
+                                        className="w-full border rounded px-3 py-2"
+                                        value={editAgentForm.description}
+                                        onChange={(e) =>
+                                          handleEditAgentChange(
+                                            "description",
+                                            e.target.value
+                                          )
+                                        }
+                                        required
+                                      />
                                     </div>
                                     <div>
-                                      <label className="block text-sm font-medium mb-1" htmlFor="edit-admin-agent-category">Category</label>
-                                      <input id="edit-admin-agent-category" type="text" className="w-full border rounded px-3 py-2" value={editAgentForm.category} onChange={e => handleEditAgentChange("category", e.target.value)} required />
+                                      <label
+                                        className="block text-sm font-medium mb-1"
+                                        htmlFor="edit-admin-agent-category"
+                                      >
+                                        Category
+                                      </label>
+                                      <input
+                                        id="edit-admin-agent-category"
+                                        type="text"
+                                        className="w-full border rounded px-3 py-2"
+                                        value={editAgentForm.category}
+                                        onChange={(e) =>
+                                          handleEditAgentChange(
+                                            "category",
+                                            e.target.value
+                                          )
+                                        }
+                                        required
+                                      />
                                     </div>
                                     <div>
-                                      <label className="block text-sm font-medium mb-1" htmlFor="edit-admin-agent-price">Price ($)</label>
-                                      <input id="edit-admin-agent-price" type="number" step="0.01" min="0" className="w-full border rounded px-3 py-2" value={editAgentForm.price} onChange={e => handleEditAgentChange("price", e.target.value)} required />
+                                      <label
+                                        className="block text-sm font-medium mb-1"
+                                        htmlFor="edit-admin-agent-price"
+                                      >
+                                        Price ($)
+                                      </label>
+                                      <input
+                                        id="edit-admin-agent-price"
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        className="w-full border rounded px-3 py-2"
+                                        value={editAgentForm.price}
+                                        onChange={(e) =>
+                                          handleEditAgentChange(
+                                            "price",
+                                            e.target.value
+                                          )
+                                        }
+                                        required
+                                      />
                                     </div>
                                     <div>
-                                      <label className="block text-sm font-medium mb-1" htmlFor="edit-admin-agent-subscription-price">Subscription Price ($/month)</label>
-                                      <input id="edit-admin-agent-subscription-price" type="number" step="0.01" min="0" className="w-full border rounded px-3 py-2" value={editAgentForm.subscription_price} onChange={e => handleEditAgentChange("subscription_price", e.target.value)} />
+                                      <label
+                                        className="block text-sm font-medium mb-1"
+                                        htmlFor="edit-admin-agent-subscription-price"
+                                      >
+                                        Subscription Price ($/month)
+                                      </label>
+                                      <input
+                                        id="edit-admin-agent-subscription-price"
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        className="w-full border rounded px-3 py-2"
+                                        value={editAgentForm.subscription_price}
+                                        onChange={(e) =>
+                                          handleEditAgentChange(
+                                            "subscription_price",
+                                            e.target.value
+                                          )
+                                        }
+                                      />
                                     </div>
                                     <DialogFooter>
-                                      <Button type="submit" disabled={editingAgent}>{editingAgent ? "Saving..." : "Save Changes"}</Button>
-                                      <Button type="button" variant="outline" onClick={closeEditAgent}>Cancel</Button>
+                                      <Button
+                                        type="submit"
+                                        disabled={editingAgent}
+                                      >
+                                        {editingAgent
+                                          ? "Saving..."
+                                          : "Save Changes"}
+                                      </Button>
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={closeEditAgent}
+                                      >
+                                        Cancel
+                                      </Button>
                                     </DialogFooter>
                                   </form>
                                 </DialogContent>
                               </Dialog>
-                              <Button size="sm" variant="destructive" className="ml-2" onClick={() => handleDeleteAgent(agent)} disabled={deletingAgentId === agent.id}>{deletingAgentId === agent.id ? "Deleting..." : "Delete"}</Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="ml-2"
+                                onClick={() => handleDeleteAgent(agent)}
+                                disabled={deletingAgentId === agent.id}
+                              >
+                                {deletingAgentId === agent.id
+                                  ? "Deleting..."
+                                  : "Delete"}
+                              </Button>
                             </td>
                           </tr>
                         ))}
@@ -641,11 +1122,38 @@ export default function AdminPage() {
                             <td className="py-3">{order.agent_id}</td>
                             <td className="py-3">{order.payment_status}</td>
                             <td className="py-3">{order.order_type}</td>
-                            <td className="py-3">${order.price?.toFixed ? order.price.toFixed(2) : order.price}</td>
-                            <td className="py-3">{order.created_at ? new Date(order.created_at).toLocaleDateString() : ""}</td>
                             <td className="py-3">
-                              <Button size="sm" variant="outline" onClick={() => openEditAgent(order)}>Edit</Button>
-                              <Button size="sm" variant="destructive" className="ml-2" onClick={() => handleDeleteAgent(order)} disabled={deletingAgentId === order.id}>{deletingAgentId === order.id ? "Deleting..." : "Delete"}</Button>
+                              $
+                              {order.price?.toFixed
+                                ? order.price.toFixed(2)
+                                : order.price}
+                            </td>
+                            <td className="py-3">
+                              {order.created_at
+                                ? new Date(
+                                    order.created_at
+                                  ).toLocaleDateString()
+                                : ""}
+                            </td>
+                            <td className="py-3">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => openEditAgent(order)}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="ml-2"
+                                onClick={() => handleDeleteAgent(order)}
+                                disabled={deletingAgentId === order.id}
+                              >
+                                {deletingAgentId === order.id
+                                  ? "Deleting..."
+                                  : "Delete"}
+                              </Button>
                             </td>
                           </tr>
                         ))}
@@ -687,14 +1195,49 @@ export default function AdminPage() {
                           <tr key={payment.id} className="border-b">
                             <td className="py-3">{payment.id}</td>
                             <td className="py-3">{payment.order_id}</td>
-                            <td className="py-3">${payment.amount?.toFixed ? payment.amount.toFixed(2) : payment.amount}</td>
-                            <td className="py-3">{payment.status}</td>
-                            <td className="py-3">{payment.gateway || payment.payment_gateway}</td>
-                            <td className="py-3">{payment.created_at ? new Date(payment.created_at).toLocaleDateString() : ""}</td>
                             <td className="py-3">
-                              <Button size="sm" variant="outline" onClick={() => handleViewPayment(payment)}>View Details</Button>
-                              <Button size="sm" variant="outline" onClick={() => openEditAgent(payment)}>Edit</Button>
-                              <Button size="sm" variant="destructive" className="ml-2" onClick={() => handleDeleteAgent(payment)} disabled={deletingAgentId === payment.id}>{deletingAgentId === payment.id ? "Deleting..." : "Delete"}</Button>
+                              $
+                              {payment.amount?.toFixed
+                                ? payment.amount.toFixed(2)
+                                : payment.amount}
+                            </td>
+                            <td className="py-3">{payment.status}</td>
+                            <td className="py-3">
+                              {payment.gateway || payment.payment_gateway}
+                            </td>
+                            <td className="py-3">
+                              {payment.created_at
+                                ? new Date(
+                                    payment.created_at
+                                  ).toLocaleDateString()
+                                : ""}
+                            </td>
+                            <td className="py-3">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleViewPayment(payment)}
+                              >
+                                View Details
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => openEditAgent(payment)}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="ml-2"
+                                onClick={() => handleDeleteAgent(payment)}
+                                disabled={deletingAgentId === payment.id}
+                              >
+                                {deletingAgentId === payment.id
+                                  ? "Deleting..."
+                                  : "Delete"}
+                              </Button>
                             </td>
                           </tr>
                         ))}
@@ -708,7 +1251,12 @@ export default function AdminPage() {
         </Tabs>
       </main>
       <Footer />
-      <Dialog open={!!viewPayment} onOpenChange={v => { if (!v) closeViewPayment() }}>
+      <Dialog
+        open={!!viewPayment}
+        onOpenChange={(v) => {
+          if (!v) closeViewPayment();
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Payment Details</DialogTitle>
@@ -719,22 +1267,37 @@ export default function AdminPage() {
             <div className="text-red-600">{errorPaymentDetails}</div>
           ) : paymentDetails ? (
             <div>
-              <div><b>Payment ID:</b> {paymentDetails.id}</div>
-              <div><b>Order:</b> {paymentDetails.order_id}</div>
-              <div><b>Amount:</b> ${paymentDetails.amount}</div>
-              <div><b>Status:</b> {paymentDetails.status}</div>
-              <div><b>Gateway:</b> {paymentDetails.gateway || paymentDetails.payment_gateway}</div>
-              <div><b>Date:</b> {paymentDetails.created_at}</div>
+              <div>
+                <b>Payment ID:</b> {paymentDetails.id}
+              </div>
+              <div>
+                <b>Order:</b> {paymentDetails.order_id}
+              </div>
+              <div>
+                <b>Amount:</b> ${paymentDetails.amount}
+              </div>
+              <div>
+                <b>Status:</b> {paymentDetails.status}
+              </div>
+              <div>
+                <b>Gateway:</b>{" "}
+                {paymentDetails.gateway || paymentDetails.payment_gateway}
+              </div>
+              <div>
+                <b>Date:</b> {paymentDetails.created_at}
+              </div>
               {/* Add more fields as needed */}
             </div>
           ) : null}
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={closeViewPayment}>Close</Button>
+            <Button type="button" variant="outline" onClick={closeViewPayment}>
+              Close
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
 
 // TODO: Add server-side admin route protection (middleware or getServerSideProps) to block non-admins from accessing /admin even if they bypass client-side checks.

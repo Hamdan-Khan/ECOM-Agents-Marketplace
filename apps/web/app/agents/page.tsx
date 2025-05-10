@@ -1,16 +1,28 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
-import { apiGet } from "@/services/api"
+import Footer from "@/components/footer";
+import Navbar from "@/components/navbar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { apiGet } from "@/services/api";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 const categories = [
   "All Categories",
@@ -19,42 +31,46 @@ const categories = [
   "ANALYTICS",
   "BOTS",
   "WORKFLOW_HELPERS",
-]
+];
 
 export default function AgentsPage() {
-  const [agents, setAgents] = useState<any[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState("")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("All Categories")
-  const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 })
+  const [agents, setAgents] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All Categories");
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
 
   useEffect(() => {
-    setIsLoading(true)
-    setError("")
+    setIsLoading(true);
+    setError("");
     apiGet<any[]>("/agents")
       .then((data) => {
-        setAgents(data)
-        setIsLoading(false)
+        setAgents(data.items);
+        setIsLoading(false);
       })
       .catch((err) => {
-        setError(err?.message || "Failed to load agents.")
-        setIsLoading(false)
-      })
-  }, [])
+        setError(err?.message || "Failed to load agents.");
+        setIsLoading(false);
+      });
+  }, []);
 
   // Filter agents based on search, category, and price
   const filteredAgents = agents.filter((agent) => {
     const matchesSearch =
       agent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      agent.description.toLowerCase().includes(searchTerm.toLowerCase())
+      agent.description.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesCategory = selectedCategory === "All Categories" || agent.category === selectedCategory
+    const matchesCategory =
+      selectedCategory === "All Categories" ||
+      agent.category === selectedCategory;
 
-    const matchesPrice = Number(agent.price) >= priceRange.min && Number(agent.price) <= priceRange.max
+    const matchesPrice =
+      Number(agent.price) >= priceRange.min &&
+      Number(agent.price) <= priceRange.max;
 
-    return matchesSearch && matchesCategory && matchesPrice
-  })
+    return matchesSearch && matchesCategory && matchesPrice;
+  });
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -84,7 +100,10 @@ export default function AgentsPage() {
                 <Label htmlFor="category" className="mb-2 block">
                   Category
                 </Label>
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <Select
+                  value={selectedCategory}
+                  onValueChange={setSelectedCategory}
+                >
                   <SelectTrigger id="category">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
@@ -106,7 +125,12 @@ export default function AgentsPage() {
                     type="number"
                     placeholder="Min"
                     value={priceRange.min}
-                    onChange={(e) => setPriceRange({ ...priceRange, min: Number(e.target.value) })}
+                    onChange={(e) =>
+                      setPriceRange({
+                        ...priceRange,
+                        min: Number(e.target.value),
+                      })
+                    }
                     className="w-full"
                   />
                   <span>to</span>
@@ -114,7 +138,12 @@ export default function AgentsPage() {
                     type="number"
                     placeholder="Max"
                     value={priceRange.max}
-                    onChange={(e) => setPriceRange({ ...priceRange, max: Number(e.target.value) })}
+                    onChange={(e) =>
+                      setPriceRange({
+                        ...priceRange,
+                        max: Number(e.target.value),
+                      })
+                    }
                     className="w-full"
                   />
                 </div>
@@ -154,9 +183,13 @@ export default function AgentsPage() {
                   <CardContent>
                     <p className="mb-2 text-gray-700">{agent.description}</p>
                     <div className="flex items-center space-x-2">
-                      <span className="font-semibold">${Number(agent.price).toFixed(2)}</span>
+                      <span className="font-semibold">
+                        ${Number(agent.price).toFixed(2)}
+                      </span>
                       {agent.subscription_price && (
-                        <span className="text-xs text-gray-500">or ${Number(agent.subscription_price).toFixed(2)}/mo</span>
+                        <span className="text-xs text-gray-500">
+                          or ${Number(agent.subscription_price).toFixed(2)}/mo
+                        </span>
                       )}
                     </div>
                   </CardContent>
@@ -169,11 +202,13 @@ export default function AgentsPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">No agents found.</div>
+            <div className="text-center py-8 text-gray-500">
+              No agents found.
+            </div>
           )}
         </div>
       </main>
       <Footer />
     </div>
-  )
+  );
 }
