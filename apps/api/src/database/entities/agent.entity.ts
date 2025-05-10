@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { OrderEntity } from './order.entity';
+import { ReviewEntity } from './review.entity';
 import { SubscriptionEntity } from './subscription.entity';
 import { TokenTransactionEntity } from './token-transaction.entity';
 import { UserEntity } from './user.entity';
@@ -53,6 +54,9 @@ export class AgentEntity {
 
   @OneToMany(() => SubscriptionEntity, (subscription) => subscription.agent)
   subscriptions: SubscriptionEntity[];
+
+  @OneToMany(() => ReviewEntity, (review) => review.agent)
+  reviews: ReviewEntity[];
 
   @OneToMany(() => TokenTransactionEntity, (transaction) => transaction.agent)
   token_transactions: TokenTransactionEntity[];

@@ -10,6 +10,7 @@ import {
 import { AgentEntity } from './agent.entity';
 import { OrderEntity } from './order.entity';
 import { PaymentEntity } from './payment.entity';
+import { ReviewEntity } from './review.entity';
 import { SubscriptionEntity } from './subscription.entity';
 import { TokenTransactionEntity } from './token-transaction.entity';
 
@@ -51,6 +52,9 @@ export class UserEntity {
 
   @OneToMany(() => SubscriptionEntity, (subscription) => subscription.user)
   subscriptions: SubscriptionEntity[];
+
+  @OneToMany(() => ReviewEntity, (review) => review.agent)
+  reviews: ReviewEntity[];
 
   @OneToMany(() => TokenTransactionEntity, (transaction) => transaction.user)
   token_transactions: TokenTransactionEntity[];

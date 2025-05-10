@@ -4,6 +4,7 @@ import { AdminEntity } from './entities/admin.entity';
 import { AgentEntity } from './entities/agent.entity';
 import { OrderEntity } from './entities/order.entity';
 import { PaymentEntity } from './entities/payment.entity';
+import { ReviewEntity } from './entities/review.entity';
 import { SubscriptionEntity } from './entities/subscription.entity';
 import { TokenTransactionEntity } from './entities/token-transaction.entity';
 import { UserEntity } from './entities/user.entity';
@@ -25,6 +26,7 @@ import { UserEntity } from './entities/user.entity';
         SubscriptionEntity,
         PaymentEntity,
         OrderEntity,
+        ReviewEntity,
       ],
     }),
   ],
