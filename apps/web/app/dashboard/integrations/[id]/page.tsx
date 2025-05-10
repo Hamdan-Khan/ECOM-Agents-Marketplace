@@ -7,8 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
+import { DashboardLayout } from "@/components/dashboard/layout"
 import { Copy, ExternalLink } from "lucide-react"
 
 type Agent = {
@@ -95,184 +94,174 @@ export default function AgentIntegrationPage({ params }: { params: { id: string 
 
   if (isLoading) {
     return (
-      <div className="flex flex-col min-h-screen">
-        <Navbar />
-        <main className="flex-grow container mx-auto px-4 py-8">
-          <div className="animate-pulse">
-            <div className="h-10 bg-gray-200 rounded w-1/3 mb-4"></div>
-            <div className="h-6 bg-gray-200 rounded w-1/4 mb-8"></div>
-            <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
-            <div className="h-64 bg-gray-200 rounded mb-8"></div>
-          </div>
-        </main>
-        <Footer />
-      </div>
+      <DashboardLayout>
+        <div className="animate-pulse">
+          <div className="h-10 bg-gray-200 rounded w-1/3 mb-4"></div>
+          <div className="h-6 bg-gray-200 rounded w-1/4 mb-8"></div>
+          <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+          <div className="h-64 bg-gray-200 rounded mb-8"></div>
+        </div>
+      </DashboardLayout>
     )
   }
 
   if (!agent) {
     return (
-      <div className="flex flex-col min-h-screen">
-        <Navbar />
-        <main className="flex-grow container mx-auto px-4 py-8">
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold mb-2">Agent not found</h2>
-            <p className="text-muted-foreground mb-6">
-              The agent you're looking for doesn't exist or you don't have access to it.
-            </p>
-            <Button asChild>
-              <a href="/dashboard">Return to Dashboard</a>
-            </Button>
-          </div>
-        </main>
-        <Footer />
-      </div>
+      <DashboardLayout>
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold mb-2">Agent not found</h2>
+          <p className="text-muted-foreground mb-6">
+            The agent you're looking for doesn't exist or you don't have access to it.
+          </p>
+          <Button asChild>
+            <a href="/dashboard">Return to Dashboard</a>
+          </Button>
+        </div>
+      </DashboardLayout>
     )
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Navbar />
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">{agent.name} Integration</h1>
-          <div className="flex items-center">
-            <Badge variant="outline" className="mr-2">
-              {agent.category}
-            </Badge>
-            <Badge variant="secondary">{agent.integration_type}</Badge>
-          </div>
+    <DashboardLayout>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">{agent.name} Integration</h1>
+        <div className="flex items-center">
+          <Badge variant="outline" className="mr-2">
+            {agent.category}
+          </Badge>
+          <Badge variant="secondary">{agent.integration_type}</Badge>
         </div>
+      </div>
 
-        <Tabs defaultValue="overview">
-          <TabsList className="mb-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="api">API Reference</TabsTrigger>
-            <TabsTrigger value="examples">Code Examples</TabsTrigger>
-          </TabsList>
+      <Tabs defaultValue="overview">
+        <TabsList className="mb-4">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="api">API Reference</TabsTrigger>
+          <TabsTrigger value="examples">Code Examples</TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="overview">
-            <Card>
-              <CardHeader>
-                <CardTitle>Integration Overview</CardTitle>
-                <CardDescription>Learn how to integrate with {agent.name}</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-medium mb-2">Description</h3>
-                  <p>{agent.description}</p>
+        <TabsContent value="overview">
+          <Card>
+            <CardHeader>
+              <CardTitle>Integration Overview</CardTitle>
+              <CardDescription>Learn how to integrate with {agent.name}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <h3 className="text-lg font-medium mb-2">Description</h3>
+                <p>{agent.description}</p>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-medium mb-2">Getting Started</h3>
+                <ol className="list-decimal pl-5 space-y-2">
+                  <li>
+                    Create an API key from the{" "}
+                    <a href="/dashboard/api-keys" className="text-blue-600 hover:underline">
+                      API Keys
+                    </a>{" "}
+                    page
+                  </li>
+                  <li>Use the API key in the Authorization header of your requests</li>
+                  <li>Make requests to the endpoint URL with the required parameters</li>
+                </ol>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-medium mb-2">Resources</h3>
+                {agent.documentation_url && (
+                  <Button variant="outline" asChild>
+                    <a href={agent.documentation_url} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Full Documentation
+                    </a>
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="api">
+          <Card>
+            <CardHeader>
+              <CardTitle>API Reference</CardTitle>
+              <CardDescription>Endpoint details and request/response formats</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <h3 className="text-lg font-medium mb-2">Endpoint</h3>
+                <div className="bg-gray-100 p-4 rounded-md flex items-center justify-between">
+                  <code className="text-sm font-mono">{agent.endpoint_url}</code>
+                  <Button variant="outline" size="sm" onClick={() => copyToClipboard(agent.endpoint_url)}>
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy
+                  </Button>
                 </div>
+              </div>
 
-                <div>
-                  <h3 className="text-lg font-medium mb-2">Getting Started</h3>
-                  <ol className="list-decimal pl-5 space-y-2">
-                    <li>
-                      Create an API key from the{" "}
-                      <a href="/dashboard/api-keys" className="text-blue-600 hover:underline">
-                        API Keys
-                      </a>{" "}
-                      page
-                    </li>
-                    <li>Use the API key in the Authorization header of your requests</li>
-                    <li>Make requests to the endpoint URL with the required parameters</li>
-                  </ol>
+              <div>
+                <h3 className="text-lg font-medium mb-2">Authentication</h3>
+                <p className="mb-2">Include your API key in the request headers:</p>
+                <div className="bg-gray-100 p-4 rounded-md">
+                  <code className="text-sm font-mono">Authorization: Bearer YOUR_API_KEY</code>
                 </div>
+              </div>
 
-                <div>
-                  <h3 className="text-lg font-medium mb-2">Resources</h3>
-                  {agent.documentation_url && (
-                    <Button variant="outline" asChild>
-                      <a href={agent.documentation_url} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        Full Documentation
-                      </a>
-                    </Button>
-                  )}
+              <div>
+                <h3 className="text-lg font-medium mb-2">Request Format</h3>
+                <div className="bg-gray-100 p-4 rounded-md flex items-center justify-between">
+                  <pre className="text-sm font-mono overflow-auto">
+                    {JSON.stringify(agent.request_format, null, 2)}
+                  </pre>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => copyToClipboard(JSON.stringify(agent.request_format, null, 2))}
+                    className="ml-4"
+                  >
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy
+                  </Button>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </div>
 
-          <TabsContent value="api">
-            <Card>
-              <CardHeader>
-                <CardTitle>API Reference</CardTitle>
-                <CardDescription>Endpoint details and request/response formats</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-medium mb-2">Endpoint</h3>
-                  <div className="bg-gray-100 p-4 rounded-md flex items-center justify-between">
-                    <code className="text-sm font-mono">{agent.endpoint_url}</code>
-                    <Button variant="outline" size="sm" onClick={() => copyToClipboard(agent.endpoint_url)}>
-                      <Copy className="h-4 w-4 mr-2" />
-                      Copy
-                    </Button>
-                  </div>
+              <div>
+                <h3 className="text-lg font-medium mb-2">Response Format</h3>
+                <div className="bg-gray-100 p-4 rounded-md flex items-center justify-between">
+                  <pre className="text-sm font-mono overflow-auto">
+                    {JSON.stringify(agent.response_format, null, 2)}
+                  </pre>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => copyToClipboard(JSON.stringify(agent.response_format, null, 2))}
+                    className="ml-4"
+                  >
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy
+                  </Button>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-                <div>
-                  <h3 className="text-lg font-medium mb-2">Authentication</h3>
-                  <p className="mb-2">Include your API key in the request headers:</p>
-                  <div className="bg-gray-100 p-4 rounded-md">
-                    <code className="text-sm font-mono">Authorization: Bearer YOUR_API_KEY</code>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-medium mb-2">Request Format</h3>
-                  <div className="bg-gray-100 p-4 rounded-md flex items-center justify-between">
-                    <pre className="text-sm font-mono overflow-auto">
-                      {JSON.stringify(agent.request_format, null, 2)}
-                    </pre>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => copyToClipboard(JSON.stringify(agent.request_format, null, 2))}
-                      className="ml-4"
-                    >
-                      <Copy className="h-4 w-4 mr-2" />
-                      Copy
-                    </Button>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-medium mb-2">Response Format</h3>
-                  <div className="bg-gray-100 p-4 rounded-md flex items-center justify-between">
-                    <pre className="text-sm font-mono overflow-auto">
-                      {JSON.stringify(agent.response_format, null, 2)}
-                    </pre>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => copyToClipboard(JSON.stringify(agent.response_format, null, 2))}
-                      className="ml-4"
-                    >
-                      <Copy className="h-4 w-4 mr-2" />
-                      Copy
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="examples">
-            <Card>
-              <CardHeader>
-                <CardTitle>Code Examples</CardTitle>
-                <CardDescription>Sample code to help you get started</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-medium mb-2">JavaScript / Node.js</h3>
-                  <div className="bg-gray-100 p-4 rounded-md relative">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        copyToClipboard(`const fetch = require('node-fetch');
+        <TabsContent value="examples">
+          <Card>
+            <CardHeader>
+              <CardTitle>Code Examples</CardTitle>
+              <CardDescription>Sample code to help you get started</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <h3 className="text-lg font-medium mb-2">JavaScript / Node.js</h3>
+                <div className="bg-gray-100 p-4 rounded-md relative">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      copyToClipboard(`const fetch = require('node-fetch');
 
 async function analyzeText(text) {
   const response = await fetch('${agent.endpoint_url}', {
@@ -298,14 +287,14 @@ async function analyzeText(text) {
 analyzeText('I love this product! It works great.')
   .then(result => console.log(result))
   .catch(error => console.error('Error:', error));`)
-                      }
-                      className="absolute top-2 right-2"
-                    >
-                      <Copy className="h-4 w-4 mr-2" />
-                      Copy
-                    </Button>
-                    <pre className="text-sm font-mono overflow-auto">
-                      {`const fetch = require('node-fetch');
+                    }
+                    className="absolute top-2 right-2"
+                  >
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy
+                  </Button>
+                  <pre className="text-sm font-mono overflow-auto">
+                    {`const fetch = require('node-fetch');
 
 async function analyzeText(text) {
   const response = await fetch('${agent.endpoint_url}', {
@@ -331,18 +320,18 @@ async function analyzeText(text) {
 analyzeText('I love this product! It works great.')
   .then(result => console.log(result))
   .catch(error => console.error('Error:', error));`}
-                    </pre>
-                  </div>
+                  </pre>
                 </div>
+              </div>
 
-                <div>
-                  <h3 className="text-lg font-medium mb-2">Python</h3>
-                  <div className="bg-gray-100 p-4 rounded-md relative">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        copyToClipboard(`import requests
+              <div>
+                <h3 className="text-lg font-medium mb-2">Python</h3>
+                <div className="bg-gray-100 p-4 rounded-md relative">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      copyToClipboard(`import requests
 
 def analyze_text(text, api_key):
     headers = {
@@ -366,14 +355,14 @@ def analyze_text(text, api_key):
 api_key = 'YOUR_API_KEY'
 result = analyze_text('I love this product! It works great.', api_key)
 print(result)`)
-                      }
-                      className="absolute top-2 right-2"
-                    >
-                      <Copy className="h-4 w-4 mr-2" />
-                      Copy
-                    </Button>
-                    <pre className="text-sm font-mono overflow-auto">
-                      {`import requests
+                    }
+                    className="absolute top-2 right-2"
+                  >
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy
+                  </Button>
+                  <pre className="text-sm font-mono overflow-auto">
+                    {`import requests
 
 def analyze_text(text, api_key):
     headers = {
@@ -397,15 +386,13 @@ def analyze_text(text, api_key):
 api_key = 'YOUR_API_KEY'
 result = analyze_text('I love this product! It works great.', api_key)
 print(result)`}
-                    </pre>
-                  </div>
+                  </pre>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </main>
-      <Footer />
-    </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </DashboardLayout>
   )
 }

@@ -32,9 +32,9 @@ export default function AgentsPage() {
   useEffect(() => {
     setIsLoading(true)
     setError("")
-    apiGet<any[]>("/agents")
+    apiGet<any>("/agents")
       .then((data) => {
-        setAgents(data)
+        setAgents(data.items || [])
         setIsLoading(false)
       })
       .catch((err) => {

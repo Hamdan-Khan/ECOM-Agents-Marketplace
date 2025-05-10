@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -9,12 +9,15 @@ import { Button } from "@/components/ui/button"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { apiGet } from "@/services/api"
+import { useCart } from "@/contexts/cart-context"
 
 export default function AgentDetailPage() {
   const { id } = useParams<{ id: string }>()
   const [agent, setAgent] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
+  const { addItem } = useCart()
+  const router = useRouter()
 
   useEffect(() => {
     if (!id) return
@@ -58,23 +61,56 @@ export default function AgentDetailPage() {
             <div className="max-w-xl mx-auto">
               <Card>
                 <CardHeader>
-                  <CardTitle>{agent.name}</CardTitle>
-                  <Badge>{agent.category}</Badge>
+                  <CardTitle className="text-2xl font-bold mb-1 flex items-center gap-2">
+                    {agent.name || <span className="text-red-500">[No Name]</span>}
+                    <Badge variant="outline">{agent.category || "Unknown"}</Badge>
+                  </CardTitle>
+                  <div className="text-xs text-gray-400">Agent ID: {agent.id}</div>
                 </CardHeader>
                 <CardContent>
-                  <p className="mb-2 text-gray-700">{agent.description}</p>
-                  <div className="flex items-center space-x-2 mb-4">
-                    <span className="font-semibold text-lg">${Number(agent.price).toFixed(2)}</span>
-                    {agent.subscription_price && (
-                      <span className="text-xs text-gray-500">or ${Number(agent.subscription_price).toFixed(2)}/mo</span>
-                    )}
+                  <div className="mb-4">
+                    <div className="font-semibold mb-1">Description</div>
+                    <p className="text-gray-700 whitespace-pre-line">{agent.description || <span className="text-red-500">[No Description]</span>}</p>
                   </div>
-                  <div className="text-sm text-gray-500 mb-2">Created by: {agent.created_by?.name || agent.created_by?.email || "Unknown"}</div>
-                  <div className="text-xs text-gray-400">Last updated: {agent.updated_at ? new Date(agent.updated_at).toLocaleString() : "N/A"}</div>
+                  <div className="mb-4 flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold">Price:</span>
+                      <span className="font-mono">${agent.price ? Number(agent.price).toFixed(2) : <span className='text-red-500'>[Missing]</span>}</span>
+                      {agent.subscription_price && (
+                        <span className="ml-2 text-xs text-gray-500">or ${Number(agent.subscription_price).toFixed(2)}/mo</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="mb-2 text-sm text-gray-500">
+                    <span className="font-semibold">Created by:</span> <span className="font-mono">{agent.created_by || <span className='text-red-500'>[Unknown]</span>}</span>
+                  </div>
+                  <div className="mb-2 text-xs text-gray-400">
+                    <span className="font-semibold">Created:</span> {agent.created_at ? new Date(agent.created_at).toLocaleString() : "N/A"}
+                  </div>
+                  <div className="mb-2 text-xs text-gray-400">
+                    <span className="font-semibold">Last updated:</span> {agent.updated_at ? new Date(agent.updated_at).toLocaleString() : "N/A"}
+                  </div>
+                  {/* Warning for missing required fields */}
+                  {(!agent.name || !agent.description || !agent.price || !agent.category) && (
+                    <div className="mt-4 p-2 bg-yellow-100 text-yellow-800 rounded text-xs">
+                      Warning: Some required agent fields are missing or incomplete.
+                    </div>
+                  )}
                 </CardContent>
                 <CardFooter className="flex flex-col gap-2">
-                  <Button asChild className="w-full">
-                    <Link href="/checkout?agentId=" + agent.id>Buy Now</Link>
+                  <Button 
+                    className="w-full"
+                    onClick={() => {
+                      addItem({
+                        id: Number(agent.id),
+                        name: agent.name,
+                        price: Number(agent.price),
+                        purchaseType: "one-time"
+                      });
+                      router.push("/cart");
+                    }}
+                  >
+                    Buy Now
                   </Button>
                   <Button asChild className="w-full" variant="outline">
                     <Link href="/agents">Back to Catalog</Link>

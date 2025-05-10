@@ -11,7 +11,18 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/hooks/use-auth"
 import { apiPost } from "@/services/api"
+
+interface LoginResponse {
+  user: {
+    id: string
+    name: string
+    email: string
+    token_balance: number
+  }
+  token: string
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -20,6 +31,7 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const router = useRouter()
   const { toast } = useToast()
+  const { login } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -27,12 +39,14 @@ export default function LoginPage() {
     setError("")
 
     try {
-      const data = await apiPost<{ user: any; token: string }>(
+      const data = await apiPost<LoginResponse>(
         "/users/login",
         { email, password }
       )
-      localStorage.setItem("token", data.token)
-      localStorage.setItem("user", JSON.stringify(data.user))
+      
+      // Use the auth hook to store auth state
+      login(data.user, data.token)
+      
       toast({
         title: "Login Successful",
         description: "Welcome back to AI Exchange!",
