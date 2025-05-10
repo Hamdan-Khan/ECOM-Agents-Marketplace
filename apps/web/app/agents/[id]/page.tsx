@@ -94,9 +94,7 @@ export default function AgentDetailPage() {
                 </CardContent>
                 <CardFooter className="flex flex-col gap-2">
                   <Button asChild className="w-full">
-                    <Link href={`"/checkout?agentId=${agent.id}"`}>
-                      Buy Now
-                    </Link>
+                    <Link href={`/checkout?agentId=${agent.id}`}>Buy Now</Link>
                   </Button>
                   <Button asChild className="w-full" variant="outline">
                     <Link href="/agents">Back to Catalog</Link>

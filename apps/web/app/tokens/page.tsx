@@ -1,85 +1,91 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useToast } from "@/hooks/use-toast"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
+import Footer from "@/components/footer";
+import Navbar from "@/components/navbar";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const tokenPackages = [
   { id: 1, name: "Starter", tokens: 100, price: 9.99 },
   { id: 2, name: "Pro", tokens: 500, price: 39.99, popular: true },
   { id: 3, name: "Enterprise", tokens: 1000, price: 69.99 },
-]
+];
 
 type TokenPurchase = {
-  purchase_id: number
-  amount: number
-  tokens: number
-  status: string
-  created_at: string
-}
+  purchase_id: number;
+  amount: number;
+  tokens: number;
+  status: string;
+  created_at: string;
+};
 
 type TokenUsage = {
-  usage_id: number
-  tokens_used: number
-  created_at: string
-  order_id: number
-  agent_name: string
-}
+  usage_id: number;
+  tokens_used: number;
+  created_at: string;
+  order_id: number;
+  agent_name: string;
+};
 
 export default function TokensPage() {
-  const [selectedPackage, setSelectedPackage] = useState<string>("2")
-  const [customTokens, setCustomTokens] = useState<number>(0)
-  const [isCustom, setIsCustom] = useState<boolean>(false)
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [user, setUser] = useState<any>(null)
-  const [tokenBalance, setTokenBalance] = useState<number>(0)
-  const [tokenPurchases, setTokenPurchases] = useState<TokenPurchase[]>([])
-  const [tokenUsage, setTokenUsage] = useState<TokenUsage[]>([])
-  const [isHistoryLoading, setIsHistoryLoading] = useState<boolean>(true)
-  const router = useRouter()
-  const { toast } = useToast()
+  const [selectedPackage, setSelectedPackage] = useState<string>("2");
+  const [customTokens, setCustomTokens] = useState<number>(0);
+  const [isCustom, setIsCustom] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [user, setUser] = useState<any>(null);
+  const [tokenBalance, setTokenBalance] = useState<number>(0);
+  const [tokenPurchases, setTokenPurchases] = useState<TokenPurchase[]>([]);
+  const [tokenUsage, setTokenUsage] = useState<TokenUsage[]>([]);
+  const [isHistoryLoading, setIsHistoryLoading] = useState<boolean>(true);
+  const router = useRouter();
+  const { toast } = useToast();
 
   // Check if user is logged in
   useEffect(() => {
-    const storedUser = localStorage.getItem("user")
+    const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      setUser(JSON.parse(storedUser))
+      setUser(JSON.parse(storedUser));
 
       // Fetch token balance and history
-      fetchTokenData()
+      fetchTokenData();
     } else {
       toast({
         title: "Authentication required",
         description: "Please sign in to purchase tokens.",
         variant: "destructive",
-      })
-      router.push("/login?redirect=tokens")
+      });
+      router.push("/login?redirect=tokens");
     }
-  }, [router, toast])
+  }, [router, toast]);
 
   const fetchTokenData = async () => {
     try {
-      const token = localStorage.getItem("token")
-      if (!token) return
+      const token = localStorage.getItem("token");
+      if (!token) return;
 
       // Fetch token balance
       const balanceResponse = await fetch("/api/tokens/balance", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
+      });
 
       if (balanceResponse.ok) {
-        const balanceData = await balanceResponse.json()
-        setTokenBalance(balanceData.balance)
+        const balanceData = await balanceResponse.json();
+        setTokenBalance(balanceData.balance);
       }
 
       // Fetch token history
@@ -87,33 +93,35 @@ export default function TokensPage() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
+      });
 
       if (historyResponse.ok) {
-        const historyData = await historyResponse.json()
-        setTokenPurchases(historyData.purchases)
-        setTokenUsage(historyData.usage)
+        const historyData = await historyResponse.json();
+        setTokenPurchases(historyData.purchases);
+        setTokenUsage(historyData.usage);
       }
     } catch (error) {
-      console.error("Error fetching token data:", error)
+      console.error("Error fetching token data:", error);
     } finally {
-      setIsHistoryLoading(false)
+      setIsHistoryLoading(false);
     }
-  }
+  };
 
   const handlePurchase = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
       // Determine the number of tokens to purchase
       const tokensToAdd = isCustom
         ? customTokens
-        : tokenPackages.find((pkg) => pkg.id.toString() === selectedPackage)?.tokens || 0
+        : tokenPackages.find((pkg) => pkg.id.toString() === selectedPackage)
+            ?.tokens || 0;
 
       // Determine the price
       const price = isCustom
         ? (customTokens * 0.1).toFixed(2) // $0.10 per token for custom amounts
-        : tokenPackages.find((pkg) => pkg.id.toString() === selectedPackage)?.price || 0
+        : tokenPackages.find((pkg) => pkg.id.toString() === selectedPackage)
+            ?.price || 0;
 
       const response = await fetch("/api/tokens/purchase", {
         method: "POST",
@@ -125,39 +133,40 @@ export default function TokensPage() {
           tokens: tokensToAdd,
           price,
         }),
-      })
+      });
 
       if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.message || "Failed to purchase tokens")
+        const data = await response.json();
+        throw new Error(data.message || "Failed to purchase tokens");
       }
 
       // Update token balance
-      setTokenBalance((prev) => prev + tokensToAdd)
+      setTokenBalance((prev) => prev + tokensToAdd);
 
       // Refresh token history
-      fetchTokenData()
+      fetchTokenData();
 
       toast({
         title: "Purchase Successful",
         description: `${tokensToAdd} tokens have been added to your account.`,
-      })
+      });
     } catch (error: any) {
       toast({
         title: "Purchase Failed",
-        description: error.message || "An error occurred during token purchase.",
+        description:
+          error.message || "An error occurred during token purchase.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   // Format date for display
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString() + " " + date.toLocaleTimeString()
-  }
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + " " + date.toLocaleTimeString();
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -165,7 +174,8 @@ export default function TokensPage() {
       <main className="flex-grow container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-2">Token Management</h1>
         <p className="text-muted-foreground mb-8">
-          Purchase tokens to use for AI agent subscriptions and one-time purchases.
+          Purchase tokens to use for AI agent subscriptions and one-time
+          purchases.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -190,10 +200,10 @@ export default function TokensPage() {
                         value={isCustom ? "custom" : selectedPackage}
                         onValueChange={(value) => {
                           if (value === "custom") {
-                            setIsCustom(true)
+                            setIsCustom(true);
                           } else {
-                            setIsCustom(false)
-                            setSelectedPackage(value)
+                            setIsCustom(false);
+                            setSelectedPackage(value);
                           }
                         }}
                         className="space-y-4"
@@ -209,15 +219,26 @@ export default function TokensPage() {
                               </div>
                             )}
                             <div className="flex items-center space-x-2">
-                              <RadioGroupItem value={pkg.id.toString()} id={`pkg-${pkg.id}`} />
-                              <Label htmlFor={`pkg-${pkg.id}`} className="flex-1">
+                              <RadioGroupItem
+                                value={pkg.id.toString()}
+                                id={`pkg-${pkg.id}`}
+                              />
+                              <Label
+                                htmlFor={`pkg-${pkg.id}`}
+                                className="flex-1"
+                              >
                                 <div className="font-medium">{pkg.name}</div>
-                                <div className="text-sm text-muted-foreground">{pkg.tokens} tokens</div>
+                                <div className="text-sm text-muted-foreground">
+                                  {pkg.tokens} tokens
+                                </div>
                               </Label>
                               <div className="text-right">
-                                <div className="font-bold">${pkg.price.toFixed(2)}</div>
+                                <div className="font-bold">
+                                  ${pkg.price.toFixed(2)}
+                                </div>
                                 <div className="text-xs text-muted-foreground">
-                                  ${(pkg.price / pkg.tokens).toFixed(2)} per token
+                                  ${(pkg.price / pkg.tokens).toFixed(2)} per
+                                  token
                                 </div>
                               </div>
                             </div>
@@ -235,7 +256,11 @@ export default function TokensPage() {
                                   step="10"
                                   placeholder="Enter number of tokens"
                                   value={customTokens || ""}
-                                  onChange={(e) => setCustomTokens(Number.parseInt(e.target.value) || 0)}
+                                  onChange={(e) =>
+                                    setCustomTokens(
+                                      Number.parseInt(e.target.value) || 0
+                                    )
+                                  }
                                   disabled={!isCustom}
                                   className="max-w-xs"
                                 />
@@ -243,9 +268,14 @@ export default function TokensPage() {
                             </Label>
                             <div className="text-right">
                               <div className="font-bold">
-                                ${isCustom && customTokens ? (customTokens * 0.1).toFixed(2) : "0.00"}
+                                $
+                                {isCustom && customTokens
+                                  ? (customTokens * 0.1).toFixed(2)
+                                  : "0.00"}
                               </div>
-                              <div className="text-xs text-muted-foreground">$0.10 per token</div>
+                              <div className="text-xs text-muted-foreground">
+                                $0.10 per token
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -277,7 +307,9 @@ export default function TokensPage() {
                     ) : (
                       <div className="space-y-6">
                         <div>
-                          <h3 className="text-lg font-medium mb-2">Token Purchases</h3>
+                          <h3 className="text-lg font-medium mb-2">
+                            Token Purchases
+                          </h3>
                           {tokenPurchases.length > 0 ? (
                             <div className="overflow-x-auto">
                               <table className="w-full">
@@ -291,25 +323,41 @@ export default function TokensPage() {
                                 </thead>
                                 <tbody>
                                   {tokenPurchases.map((purchase) => (
-                                    <tr key={purchase.purchase_id} className="border-b">
-                                      <td className="py-3">{formatDate(purchase.created_at)}</td>
+                                    <tr
+                                      key={purchase.purchase_id}
+                                      className="border-b"
+                                    >
                                       <td className="py-3">
-                                        ${Number.parseFloat(purchase.amount.toString()).toFixed(2)}
+                                        {formatDate(purchase.created_at)}
                                       </td>
-                                      <td className="py-3">{purchase.tokens}</td>
-                                      <td className="py-3 capitalize">{purchase.status}</td>
+                                      <td className="py-3">
+                                        $
+                                        {Number.parseFloat(
+                                          purchase.amount.toString()
+                                        ).toFixed(2)}
+                                      </td>
+                                      <td className="py-3">
+                                        {purchase.tokens}
+                                      </td>
+                                      <td className="py-3 capitalize">
+                                        {purchase.status}
+                                      </td>
                                     </tr>
                                   ))}
                                 </tbody>
                               </table>
                             </div>
                           ) : (
-                            <p className="text-muted-foreground">No purchase history found.</p>
+                            <p className="text-muted-foreground">
+                              No purchase history found.
+                            </p>
                           )}
                         </div>
 
                         <div>
-                          <h3 className="text-lg font-medium mb-2">Token Usage</h3>
+                          <h3 className="text-lg font-medium mb-2">
+                            Token Usage
+                          </h3>
                           {tokenUsage.length > 0 ? (
                             <div className="overflow-x-auto">
                               <table className="w-full">
@@ -317,24 +365,41 @@ export default function TokensPage() {
                                   <tr className="text-left border-b">
                                     <th className="pb-2 font-medium">Date</th>
                                     <th className="pb-2 font-medium">Agent</th>
-                                    <th className="pb-2 font-medium">Order ID</th>
-                                    <th className="pb-2 font-medium">Tokens Used</th>
+                                    <th className="pb-2 font-medium">
+                                      Order ID
+                                    </th>
+                                    <th className="pb-2 font-medium">
+                                      Tokens Used
+                                    </th>
                                   </tr>
                                 </thead>
                                 <tbody>
                                   {tokenUsage.map((usage) => (
-                                    <tr key={usage.usage_id} className="border-b">
-                                      <td className="py-3">{formatDate(usage.created_at)}</td>
-                                      <td className="py-3">{usage.agent_name}</td>
-                                      <td className="py-3">#{usage.order_id}</td>
-                                      <td className="py-3">{usage.tokens_used}</td>
+                                    <tr
+                                      key={usage.usage_id}
+                                      className="border-b"
+                                    >
+                                      <td className="py-3">
+                                        {formatDate(usage.created_at)}
+                                      </td>
+                                      <td className="py-3">
+                                        {usage.agent_name}
+                                      </td>
+                                      <td className="py-3">
+                                        #{usage.order_id}
+                                      </td>
+                                      <td className="py-3">
+                                        {usage.tokens_used}
+                                      </td>
                                     </tr>
                                   ))}
                                 </tbody>
                               </table>
                             </div>
                           ) : (
-                            <p className="text-muted-foreground">No usage history found.</p>
+                            <p className="text-muted-foreground">
+                              No usage history found.
+                            </p>
                           )}
                         </div>
                       </div>
@@ -352,7 +417,8 @@ export default function TokensPage() {
               <CardContent>
                 <div className="text-3xl font-bold mb-2">{tokenBalance}</div>
                 <p className="text-sm text-muted-foreground">
-                  Tokens can be used to purchase AI agents or subscribe to services.
+                  Tokens can be used to purchase AI agents or subscribe to
+                  services.
                 </p>
               </CardContent>
               <CardFooter>
@@ -366,5 +432,5 @@ export default function TokensPage() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }

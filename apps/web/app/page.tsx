@@ -1,8 +1,8 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
-import FeaturedAgents from "@/components/featured-agents"
+import FeaturedAgents from "@/components/featured-agents";
+import Footer from "@/components/footer";
+import Navbar from "@/components/navbar";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -17,14 +17,24 @@ export default function Home() {
                 Discover and Integrate AI Agents for Your Business
               </h1>
               <p className="text-xl mb-8">
-                AI Exchange connects you with specialized AI tools built by developers worldwide. Find the perfect AI
-                agent to enhance your workflow.
+                AI Exchange connects you with specialized AI tools built by
+                developers worldwide. Find the perfect AI agent to enhance your
+                workflow.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button asChild size="lg" className="bg-white text-blue-700 hover:bg-gray-100">
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-white text-blue-700 hover:bg-gray-100"
+                >
                   <Link href="/agents">Browse AI Agents</Link>
                 </Button>
-                <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="border-white text-white hover:bg-white/10"
+                >
                   <Link href="/register">Sign Up</Link>
                 </Button>
               </div>
@@ -35,7 +45,9 @@ export default function Home() {
         {/* Features Section */}
         <section className="py-16 bg-gray-50">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-12">Why Choose AI Exchange?</h2>
+            <h2 className="text-3xl font-bold text-center mb-12">
+              Why Choose AI Exchange?
+            </h2>
             <div className="grid md:grid-cols-3 gap-8">
               <div className="bg-white p-6 rounded-lg shadow-md">
                 <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
@@ -46,12 +58,18 @@ export default function Home() {
                     viewBox="0 0 24 24"
                     stroke="currentColor"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    />
                   </svg>
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Ready-to-Use AI</h3>
                 <p className="text-gray-600">
-                  Access pre-built AI agents that can be integrated into your workflow immediately.
+                  Access pre-built AI agents that can be integrated into your
+                  workflow immediately.
                 </p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-md">
@@ -71,9 +89,12 @@ export default function Home() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Flexible Payments</h3>
+                <h3 className="text-xl font-semibold mb-2">
+                  Flexible Payments
+                </h3>
                 <p className="text-gray-600">
-                  Choose between one-time purchases, subscriptions, or our convenient token system.
+                  Choose between one-time purchases, subscriptions, or our
+                  convenient token system.
                 </p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-md">
@@ -93,9 +114,12 @@ export default function Home() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Secure Integration</h3>
+                <h3 className="text-xl font-semibold mb-2">
+                  Secure Integration
+                </h3>
                 <p className="text-gray-600">
-                  All AI agents are vetted for security and quality before being listed on our platform.
+                  All AI agents are vetted for security and quality before being
+                  listed on our platform.
                 </p>
               </div>
             </div>
@@ -105,7 +129,9 @@ export default function Home() {
         {/* Featured Agents Section */}
         <section className="py-16">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-12">Featured AI Agents</h2>
+            <h2 className="text-3xl font-bold text-center mb-12">
+              Featured AI Agents
+            </h2>
             <FeaturedAgents />
             <div className="text-center mt-10">
               <Button asChild size="lg">
@@ -117,5 +143,5 @@ export default function Home() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }

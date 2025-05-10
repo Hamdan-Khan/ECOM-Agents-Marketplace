@@ -1,88 +1,117 @@
-"use client"
+"use client";
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 
 export type CartItem = {
-  id: number
-  name: string
-  price: number
-  purchaseType: "one-time" | "subscription"
-  quantity: number
-}
+  id: number;
+  name: string;
+  price: number;
+  purchaseType: "one-time" | "subscription";
+  quantity: number;
+};
 
 type CartContextType = {
-  items: CartItem[]
-  addItem: (item: Omit<CartItem, "quantity">) => void
-  removeItem: (id: number, purchaseType: "one-time" | "subscription") => void
-  updateQuantity: (id: number, purchaseType: "one-time" | "subscription", quantity: number) => void
-  clearCart: () => void
-  totalItems: number
-  totalPrice: number
-}
+  items: CartItem[];
+  addItem: (item: Omit<CartItem, "quantity">) => void;
+  removeItem: (id: number, purchaseType: "one-time" | "subscription") => void;
+  updateQuantity: (
+    id: number,
+    purchaseType: "one-time" | "subscription",
+    quantity: number
+  ) => void;
+  clearCart: () => void;
+  totalItems: number;
+  totalPrice: number;
+};
 
-const CartContext = createContext<CartContextType | undefined>(undefined)
+const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([])
+  const [items, setItems] = useState<CartItem[]>([]);
 
   // Load cart from localStorage on initial render
   useEffect(() => {
-    const savedCart = localStorage.getItem("cart")
+    const savedCart = localStorage.getItem("cart");
     if (savedCart) {
       try {
-        setItems(JSON.parse(savedCart))
+        setItems(JSON.parse(savedCart));
       } catch (error) {
-        console.error("Failed to parse cart from localStorage:", error)
+        console.error("Failed to parse cart from localStorage:", error);
       }
     }
-  }, [])
+  }, []);
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(items))
-  }, [items])
+    localStorage.setItem("cart", JSON.stringify(items));
+  }, [items]);
 
   const addItem = (newItem: Omit<CartItem, "quantity">) => {
     setItems((prevItems) => {
       // Check if item already exists in cart with same purchase type
       const existingItemIndex = prevItems.findIndex(
-        (item) => item.id === newItem.id && item.purchaseType === newItem.purchaseType,
-      )
+        (item) =>
+          item.id === newItem.id && item.purchaseType === newItem.purchaseType
+      );
 
       if (existingItemIndex >= 0) {
         // Update quantity of existing item
-        const updatedItems = [...prevItems]
-        updatedItems[existingItemIndex].quantity += 1
-        return updatedItems
+        const updatedItems = [...prevItems];
+        updatedItems[existingItemIndex].quantity += 1;
+        return updatedItems;
       } else {
         // Add new item with quantity 1
-        return [...prevItems, { ...newItem, quantity: 1 }]
+        return [...prevItems, { ...newItem, quantity: 1 }];
       }
-    })
-  }
+    });
+  };
 
-  const removeItem = (id: number, purchaseType: "one-time" | "subscription") => {
-    setItems((prevItems) => prevItems.filter((item) => !(item.id === id && item.purchaseType === purchaseType)))
-  }
+  const removeItem = (
+    id: number,
+    purchaseType: "one-time" | "subscription"
+  ) => {
+    setItems((prevItems) =>
+      prevItems.filter(
+        (item) => !(item.id === id && item.purchaseType === purchaseType)
+      )
+    );
+  };
 
-  const updateQuantity = (id: number, purchaseType: "one-time" | "subscription", quantity: number) => {
+  const updateQuantity = (
+    id: number,
+    purchaseType: "one-time" | "subscription",
+    quantity: number
+  ) => {
     if (quantity <= 0) {
-      removeItem(id, purchaseType)
-      return
+      removeItem(id, purchaseType);
+      return;
     }
 
     setItems((prevItems) =>
-      prevItems.map((item) => (item.id === id && item.purchaseType === purchaseType ? { ...item, quantity } : item)),
-    )
-  }
+      prevItems.map((item) =>
+        item.id === id && item.purchaseType === purchaseType
+          ? { ...item, quantity }
+          : item
+      )
+    );
+  };
 
   const clearCart = () => {
-    setItems([])
-  }
+    setItems([]);
+  };
 
-  const totalItems = items.reduce((total, item) => total + item.quantity, 0)
+  const totalItems = items.reduce((total, item) => total + item.quantity, 0);
 
-  const totalPrice = items.reduce((total, item) => total + item.price * item.quantity, 0)
+  const totalPrice = items.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
 
   return (
     <CartContext.Provider
@@ -98,13 +127,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     >
       {children}
     </CartContext.Provider>
-  )
+  );
 }
 
 export function useCart() {
-  const context = useContext(CartContext)
+  const context = useContext(CartContext);
   if (context === undefined) {
-    throw new Error("useCart must be used within a CartProvider")
+    throw new Error("useCart must be used within a CartProvider");
   }
-  return context
+  return context;
 }

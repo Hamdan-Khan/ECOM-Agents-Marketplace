@@ -1,27 +1,33 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { useToast } from "@/hooks/use-toast"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
+import Footer from "@/components/footer";
+import Navbar from "@/components/navbar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 type Agent = {
-  id: number
-  name: string
-  description: string
-  category: string
-  integration_type: string
-  has_api_key: boolean
-}
+  id: number;
+  name: string;
+  description: string;
+  category: string;
+  integration_type: string;
+  has_api_key: boolean;
+};
 
 export default function IntegrationsPage() {
-  const [agents, setAgents] = useState<Agent[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const { toast } = useToast()
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchAgents = async () => {
@@ -33,7 +39,8 @@ export default function IntegrationsPage() {
             {
               id: 1,
               name: "TextAnalyzer Pro",
-              description: "Advanced NLP tool for sentiment analysis and text classification.",
+              description:
+                "Advanced NLP tool for sentiment analysis and text classification.",
               category: "NLP",
               integration_type: "REST API",
               has_api_key: true,
@@ -41,27 +48,28 @@ export default function IntegrationsPage() {
             {
               id: 3,
               name: "DataPredictor",
-              description: "Predictive analytics tool for forecasting business metrics.",
+              description:
+                "Predictive analytics tool for forecasting business metrics.",
               category: "Predictive Analytics",
               integration_type: "REST API",
               has_api_key: false,
             },
-          ])
-          setIsLoading(false)
-        }, 1000)
+          ]);
+          setIsLoading(false);
+        }, 1000);
       } catch (error) {
-        console.error("Error fetching agents:", error)
+        console.error("Error fetching agents:", error);
         toast({
           title: "Error",
           description: "Failed to load integrations",
           variant: "destructive",
-        })
-        setIsLoading(false)
+        });
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchAgents()
-  }, [toast])
+    fetchAgents();
+  }, [toast]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -70,7 +78,9 @@ export default function IntegrationsPage() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold">Integrations</h1>
-            <p className="text-muted-foreground">Integrate your purchased AI agents into your applications</p>
+            <p className="text-muted-foreground">
+              Integrate your purchased AI agents into your applications
+            </p>
           </div>
           <Button asChild>
             <Link href="/dashboard/api-keys">Manage API Keys</Link>
@@ -116,7 +126,9 @@ export default function IntegrationsPage() {
                 </CardContent>
                 <CardFooter className="flex justify-between">
                   <Button variant="outline" asChild>
-                    <Link href={`/dashboard/integrations/${agent.id}`}>View Documentation</Link>
+                    <Link href={`/dashboard/integrations/${agent.id}`}>
+                      View Documentation
+                    </Link>
                   </Button>
                   {!agent.has_api_key && (
                     <Button asChild>
@@ -129,9 +141,12 @@ export default function IntegrationsPage() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <h2 className="text-2xl font-bold mb-2">No integrations available</h2>
+            <h2 className="text-2xl font-bold mb-2">
+              No integrations available
+            </h2>
             <p className="text-muted-foreground mb-6">
-              You haven't purchased any AI agents yet. Browse our catalog to find agents you can integrate with.
+              You haven't purchased any AI agents yet. Browse our catalog to
+              find agents you can integrate with.
             </p>
             <Button asChild>
               <Link href="/agents">Browse AI Agents</Link>
@@ -141,5 +156,5 @@ export default function IntegrationsPage() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }
