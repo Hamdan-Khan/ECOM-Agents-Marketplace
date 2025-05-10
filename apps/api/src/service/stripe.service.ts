@@ -36,8 +36,8 @@ export class StripeService {
           },
         ],
         mode: 'payment',
-        success_url: `${backendUrl}/pay/success/checkout/session?session_id={CHECKOUT_SESSION_ID}`,
-        // success_url: `${frontendUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        // success_url: `${backendUrl}/pay/success/checkout/session?session_id={CHECKOUT_SESSION_ID}`,
+        success_url: `${frontendUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${frontendUrl}/payment-failed`, // Example: show failed UI page
       });
 
