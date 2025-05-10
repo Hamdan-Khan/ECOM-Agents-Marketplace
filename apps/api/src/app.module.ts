@@ -8,6 +8,7 @@ import { OrderModule } from './modules/order.module';
 import { PaymentModule } from './modules/payment.module';
 import { ReviewModule } from './modules/review.module';
 import { UserModule } from './modules/user.module';
+import { StripeModule } from './modules/stripe.module'; // Import StripeModule to handle payment processing
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { UserModule } from './modules/user.module';
     PaymentModule,
     AuthModule,
     ReviewModule,
+    StripeModule, 
   ],
   controllers: [AppController],
   providers: [AppService],
