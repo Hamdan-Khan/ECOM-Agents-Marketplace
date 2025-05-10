@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect } from "react"
@@ -33,6 +34,7 @@ export default function ApiKeysPage() {
   }, [])
 
   const fetchApiKeys = async () => {
+
     try {
       setLoading(true)
       const response = await apiGet<{ items: ApiKey[] }>("/api-keys")
@@ -43,6 +45,7 @@ export default function ApiKeysPage() {
       } else {
         toast({
           title: "Error",
+
           description: error.message || "Failed to fetch API keys",
           variant: "destructive"
         })
@@ -51,6 +54,7 @@ export default function ApiKeysPage() {
       setLoading(false)
     }
   }
+
 
   const createApiKey = async () => {
     if (!newKeyName.trim()) {
@@ -62,7 +66,9 @@ export default function ApiKeysPage() {
       return
     }
 
+
     try {
+
       setCreatingKey(true)
       const response = await apiPost<ApiKey>("/api-keys", { name: newKeyName })
       setApiKeys([response, ...apiKeys])
@@ -80,10 +86,11 @@ export default function ApiKeysPage() {
     } finally {
       setCreatingKey(false)
     }
-  }
+  };
 
   const deleteApiKey = async (keyId: string) => {
     try {
+
       setDeletingKeyId(keyId)
       await apiPost(`/api-keys/${keyId}`, {}, { method: "DELETE" })
       setApiKeys(apiKeys.filter(key => key.id !== keyId))
@@ -100,12 +107,13 @@ export default function ApiKeysPage() {
     } finally {
       setDeletingKeyId(null)
     }
-  }
+  };
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
+    navigator.clipboard.writeText(text);
     toast({
       title: "Copied",
+
       description: "API key copied to clipboard"
     })
   }

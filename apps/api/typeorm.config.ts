@@ -26,6 +26,6 @@ export default new DataSource({
     PaymentEntity,
     OrderEntity,
   ],
-  migrations: ['src/database/migrations/*.ts'],
+  migrations: ['./src/database/migrations/*.ts'],
   synchronize: false,
 });

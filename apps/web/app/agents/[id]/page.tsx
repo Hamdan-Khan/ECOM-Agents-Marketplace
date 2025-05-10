@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
@@ -20,19 +20,19 @@ export default function AgentDetailPage() {
   const router = useRouter()
 
   useEffect(() => {
-    if (!id) return
-    setIsLoading(true)
-    setError("")
+    if (!id) return;
+    setIsLoading(true);
+    setError("");
     apiGet<any>(`/agents/${id}`)
       .then((data) => {
-        setAgent(data)
-        setIsLoading(false)
+        setAgent(data);
+        setIsLoading(false);
       })
       .catch((err) => {
-        setError(err?.message || "Failed to load agent details.")
-        setIsLoading(false)
-      })
-  }, [id])
+        setError(err?.message || "Failed to load agent details.");
+        setIsLoading(false);
+      });
+  }, [id]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -68,6 +68,7 @@ export default function AgentDetailPage() {
                   <div className="text-xs text-gray-400">Agent ID: {agent.id}</div>
                 </CardHeader>
                 <CardContent>
+
                   <div className="mb-4">
                     <div className="font-semibold mb-1">Description</div>
                     <p className="text-gray-700 whitespace-pre-line">{agent.description || <span className="text-red-500">[No Description]</span>}</p>
@@ -123,5 +124,5 @@ export default function AgentDetailPage() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }

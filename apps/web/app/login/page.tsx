@@ -1,6 +1,7 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
+
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
@@ -14,6 +15,7 @@ import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/hooks/use-auth"
 import { apiPost } from "@/services/api"
 
+
 interface LoginResponse {
   user: {
     id: string
@@ -25,6 +27,7 @@ interface LoginResponse {
 }
 
 export default function LoginPage() {
+
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -33,12 +36,14 @@ export default function LoginPage() {
   const { toast } = useToast()
   const { login } = useAuth()
 
+
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
     try {
+
       const data = await apiPost<LoginResponse>(
         "/users/login",
         { email, password }
@@ -47,16 +52,22 @@ export default function LoginPage() {
       // Use the auth hook to store auth state
       login(data.user, data.token)
       
+
       toast({
         title: "Login Successful",
         description: "Welcome back to AI Exchange!",
-      })
-      router.push("/dashboard")
+      });
+      router.push("/dashboard");
     } catch (err: any) {
-      setError(err?.message || "An error occurred during login")
+      setError(err?.message || "An error occurred during login");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
+  };
+
+  if (user) {
+    router.push("/dashboard");
+    return null;
   }
 
   return (
@@ -64,7 +75,9 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Sign in</CardTitle>
-          <CardDescription>Enter your email and password to access your account</CardDescription>
+          <CardDescription>
+            Enter your email and password to access your account
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {error && (
@@ -87,7 +100,10 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <Link href="/forgot-password" className="text-sm font-medium text-blue-600 hover:text-blue-500">
+                <Link
+                  href="/forgot-password"
+                  className="text-sm font-medium text-blue-600 hover:text-blue-500"
+                >
                   Forgot password?
                 </Link>
               </div>
@@ -107,12 +123,15 @@ export default function LoginPage() {
         <CardFooter className="flex justify-center">
           <p className="text-sm text-gray-600">
             Don&apos;t have an account?{" "}
-            <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
+            <Link
+              href="/register"
+              className="font-medium text-blue-600 hover:text-blue-500"
+            >
               Sign up
             </Link>
           </p>
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }
