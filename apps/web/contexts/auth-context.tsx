@@ -31,28 +31,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const { setIsAdmin } = useAuth();
 
-  useEffect(() => {
-    const checkLocalStorage = async () => {
-      const storedUser = localStorage.getItem("user");
-      const storedToken = localStorage.getItem("token");
-      if (storedUser && storedToken) {
-        const parsedUser = JSON.parse(storedUser);
-        if (parsedUser && typeof parsedUser === "object") {
-          const data = await apiPost<LoginResponse>("/users/login", {
-            email: parsedUser.email,
-            password: parsedUser.password,
-          });
-          if (data) {
-            setUser(data.user);
-            setToken(data.token);
-            setIsAdmin(data.user.role == "ADMIN");
-          }
-        }
-      }
-    };
+  // useEffect(() => {
+  //   const checkLocalStorage = async () => {
+  //     const storedUser = localStorage.getItem("user");
+  //     const storedToken = localStorage.getItem("token");
+  //     if (storedUser && storedToken) {
+  //       const parsedUser = JSON.parse(storedUser);
+  //       if (parsedUser && typeof parsedUser === "object") {
+  //         const data = await apiPost<LoginResponse>("/users/login", {
+  //           email: parsedUser.email,
+  //           password: parsedUser.password,
+  //         });
+  //         if (data) {
+  //           setUser(data.user);
+  //           setToken(data.token);
+  //           setIsAdmin(data.user.role == "ADMIN");
+  //         }
+  //       }
+  //     }
+  //   };
 
-    checkLocalStorage();
-  }, []);
+  //   checkLocalStorage();
+  // }, []);
 
   const login = (user: User, token: string) => {
     setUser(user);

@@ -31,6 +31,11 @@ function extractErrorMessage(error: any): string {
 }
 
 async function handleResponse<T>(res: Response): Promise<T> {
+  // If response status is 204 (No Content), return null as the response
+  if (res.status === 204) {
+    return null as T;
+  }
+
   let data;
   try {
     data = await res.json();
@@ -50,11 +55,16 @@ async function handleResponse<T>(res: Response): Promise<T> {
       };
     }
 
-    const message =
-      data?.message ||
-      data?.error ||
-      (typeof data === "string" ? data : "Unknown error");
-    throw { message, status: res.status, data };
+    // Handle API error structure
+    const errorMessage = typeof data === 'object' ? 
+      data.message || data.error || 'Unknown error' :
+      data;
+
+    throw {
+      message: errorMessage,
+      status: res.status,
+      data: data
+    };
   }
   return data;
 }
@@ -131,11 +141,24 @@ export async function apiDelete<T>(
     });
 
     return handleResponse<T>(res);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(error.message);
+  } catch (error: any) {
+    // If it's already our custom error structure, rethrow it
+    if (error.status && error.message) {
+      throw error;
     }
-    throw new Error("Failed to delete data");
+    // Otherwise wrap it in our error structure
+    if (error instanceof Error) {
+      throw {
+        message: error.message,
+        status: 500,
+        data: null
+      };
+    }
+    throw {
+      message: "Failed to delete data",
+      status: 500,
+      data: null
+    };
   }
 }
 
