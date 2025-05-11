@@ -1,17 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react"
-import { AdminLayout } from "@/components/admin/layout"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useToast } from "@/hooks/use-toast"
-import { apiGet } from "@/services/api"
-import { Bot, ShoppingCart, CreditCard, Users } from "lucide-react"
+import { AdminLayout } from "@/components/admin/layout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { apiGet } from "@/services/api";
+import { Bot, CreditCard, ShoppingCart, Users } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface AdminStats {
-  totalUsers: number
-  totalAgents: number
-  totalOrders: number
-  totalRevenue: number
+  totalUsers: number;
+  totalAgents: number;
+  totalOrders: number;
+  totalRevenue: number;
 }
 
 export default function AdminPage() {
@@ -19,46 +19,46 @@ export default function AdminPage() {
     totalUsers: 0,
     totalAgents: 0,
     totalOrders: 0,
-    totalRevenue: 0
-  })
-  const [loading, setLoading] = useState(true)
-  const { toast } = useToast()
+    totalRevenue: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
-    const fetchStats = async () => {      try {
-        setLoading(true)
+    const fetchStats = async () => {
+      try {
+        setLoading(true);
         // Fetch all required data in parallel
-        const [usersData, agentsData, ordersData, paymentsData] = await Promise.all([
+        const [usersData, agentsData, ordersData] = await Promise.all([
           apiGet<{ total: number }>("/users"),
           apiGet<{ total: number }>("/agents"),
-          apiGet<{ total: number }>("/orders"),
-          apiGet<any[]>("/payments"),
-        ])
+          apiGet<{ total: number; items: any[] }>("/orders"),
+        ]);
 
         // Calculate total revenue from payments
-        const totalRevenue = paymentsData.reduce((sum, payment) => {
-          return sum + (payment.amount || 0)
-        }, 0)
+        const totalRevenue = ordersData.items.reduce((sum, orders) => {
+          return sum + (Number(orders.price) || 0);
+        }, 0);
 
         setStats({
           totalUsers: usersData.total || 0,
           totalAgents: agentsData.total || 0,
           totalOrders: ordersData.total || 0,
-          totalRevenue
-        })
+          totalRevenue,
+        });
       } catch (error: any) {
         toast({
           title: "Error",
           description: error.message || "Failed to fetch admin stats",
-          variant: "destructive"
-        })
+          variant: "destructive",
+        });
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchStats()
-  }, [toast])
+    fetchStats();
+  }, [toast]);
 
   return (
     <AdminLayout>
@@ -78,7 +78,9 @@ export default function AdminPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Agents</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Agents
+              </CardTitle>
               <Bot className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -88,7 +90,9 @@ export default function AdminPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Orders
+              </CardTitle>
               <ShoppingCart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -98,7 +102,9 @@ export default function AdminPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Revenue
+              </CardTitle>
               <CreditCard className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -110,7 +116,7 @@ export default function AdminPage() {
         </div>
       </div>
     </AdminLayout>
-  )
+  );
 }
 
 // TODO: Add server-side admin route protection (middleware or getServerSideProps) to block non-admins from accessing /admin even if they bypass client-side checks.

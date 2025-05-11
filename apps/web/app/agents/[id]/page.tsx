@@ -183,7 +183,8 @@ export default function AgentDetailPage() {
                       </Button>
                     )}
                     <Button
-                      className="w-[48%]"
+                      className={`w-[48%] ${isAgentOwned ? "hover:cursor-not-allowed" : "cursor-pointer"}`}
+                      title={`${isAgentOwned ? "Already bought" : ""}`}
                       onClick={() => {
                         const result = addItem({
                           id: agent.id,
