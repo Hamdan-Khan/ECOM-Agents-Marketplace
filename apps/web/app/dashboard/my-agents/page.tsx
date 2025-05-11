@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useAuth } from "@/hooks/use-auth";
 import { apiGet } from "@/services/api";
 import { format } from "date-fns";
 import Link from "next/link";
@@ -29,9 +30,13 @@ export interface Agent {
 
 export default function MyAgentsPage() {
   const [owned, setOwned] = useState<any[]>([]);
+  const { login } = useAuth();
+
   useEffect(() => {
     const fetchUser = async () => {
       const data: any = await apiGet("/users/profile");
+      const token = localStorage.getItem("token");
+      login(data, token!);
       setOwned(data.owned_agents);
     };
     fetchUser();

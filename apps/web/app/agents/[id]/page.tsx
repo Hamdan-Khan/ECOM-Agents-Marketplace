@@ -11,11 +11,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useCart } from "@/contexts/cart-context";
+import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiGet } from "@/services/api";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function AgentDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -25,6 +26,7 @@ export default function AgentDetailPage() {
   const { addItem } = useCart();
   const router = useRouter();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
     if (!id) return;
@@ -40,6 +42,13 @@ export default function AgentDetailPage() {
         setIsLoading(false);
       });
   }, [id]);
+
+  const isAgentOwned = useMemo(() => {
+    if (!agent) {
+      return false;
+    }
+    return user?.owned_agents.find((a) => a.id == agent.id) != null;
+  }, [user, agent]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -138,33 +147,41 @@ export default function AgentDetailPage() {
                   )}
                 </CardContent>
                 <CardFooter className="flex flex-col gap-2">
-                  <div className="w-full flex justify-between">                    <Button
-                      className="w-[48%]"
-                      onClick={() => {
-                        const result = addItem({
-                          id: agent.id,
-                          name: agent.name,
-                          price: Number(agent.price),
-                          purchaseType: "one-time",
-                        });
-                        
-                        if (result.success) {
-                          toast({
-                            title: "Added to Cart",
-                            variant: "default",
-                            description: `${agent.name} added to cart successfully`,
+                  <div className="w-full flex justify-between">
+                    {" "}
+                    {isAgentOwned ? (
+                      <Link href="/dashboard/my-agents" className="w-[48%]">
+                        <Button className="w-full">Go to my agents</Button>
+                      </Link>
+                    ) : (
+                      <Button
+                        className="w-[48%]"
+                        onClick={() => {
+                          const result = addItem({
+                            id: agent.id,
+                            name: agent.name,
+                            price: Number(agent.price),
+                            purchaseType: "one-time",
                           });
-                        } else {
-                          toast({
-                            title: "Already in Cart",
-                            variant: "destructive",
-                            description: result.message,
-                          });
-                        }
-                      }}
-                    >
-                      Add To Cart
-                    </Button>
+
+                          if (result.success) {
+                            toast({
+                              title: "Added to Cart",
+                              variant: "default",
+                              description: `${agent.name} added to cart successfully`,
+                            });
+                          } else {
+                            toast({
+                              title: "Already in Cart",
+                              variant: "destructive",
+                              description: result.message,
+                            });
+                          }
+                        }}
+                      >
+                        Add To Cart
+                      </Button>
+                    )}
                     <Button
                       className="w-[48%]"
                       onClick={() => {
@@ -174,7 +191,7 @@ export default function AgentDetailPage() {
                           price: Number(agent.price),
                           purchaseType: "one-time",
                         });
-                        
+
                         if (result.success) {
                           router.push("/cart");
                         } else {
@@ -185,6 +202,7 @@ export default function AgentDetailPage() {
                           });
                         }
                       }}
+                      disabled={isAgentOwned}
                     >
                       Buy Now
                     </Button>
