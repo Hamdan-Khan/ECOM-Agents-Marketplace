@@ -10,21 +10,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useAuth } from "@/hooks/use-auth";
-import { useToast } from "@/hooks/use-toast";
+import { apiGet } from "@/services/api";
 import { format } from "date-fns";
-import { Plus } from "lucide-react";
 import Link from "next/link";
-import { apiGet, apiPost, } from "@/services/api";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
-interface Order {
-  id: string;
-  agent: Agent;
-  type: 'one-time' | 'subscription';
-  created_at: string;
-}
 
 export interface Agent {
   id: string;
@@ -39,82 +28,14 @@ export interface Agent {
 }
 
 export default function MyAgentsPage() {
-  const router = useRouter();
-  const { toast } = useToast();
-  const { user, isAdmin } = useAuth();
-  const [agents, setAgents] = useState<Agent[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [deletingAgentId, setDeletingAgentId] = useState<string | null>(null);
-
+  const [owned, setOwned] = useState<any[]>([]);
   useEffect(() => {
-    if (user) {
-      fetchPurchasedAgents();
-    }
-  }, [user]);
-
-  const fetchPurchasedAgents = async () => {
-    if (!user?.id) return;
-    
-    try {
-      setLoading(true);
-      // Get all orders for the current user
-      const ordersResponse = await apiGet<{ 
-        items: Array<{ agent: Agent; type: 'one-time' | 'subscription' }>
-      }>(`/orders?userId=${user.id}`);
-
-      
-
-      // Extract unique agents from the orders
-      const uniqueAgents = new Map<string, Agent>();
-      ordersResponse.items?.forEach(order => {
-        if (order.agent) {
-          uniqueAgents.set(order.agent.id, order.agent);
-        }
-      });
-
-      setAgents(Array.from(uniqueAgents.values()));
-    } catch (error: any) {
-      console.error('Error fetching agents:', error);
-      if (error.status === 401) {
-        router.push("/login");
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Error", 
-          description: error.message || "Failed to fetch your agents"
-        });
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async (agent: Agent) => {
-    if (!window.confirm(`Are you sure you want to delete "${agent.name}"?`))
-      return;
-
-    try {
-      setDeletingAgentId(agent.id);
-      await apiPost(`/agents/${agent.id}`, {}, { method: "DELETE" });
-      toast({
-        title: "Success",
-        description: "Agent deleted successfully"
-      });
-      await fetchPurchasedAgents();
-    } catch (error: any) {
-      if (error.status === 401) {
-        router.push("/login");
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: error.message || "Failed to delete agent"
-        });
-      }
-    } finally {
-      setDeletingAgentId(null);
-    }
-  };
+    const fetchUser = async () => {
+      const data: any = await apiGet("/users/profile");
+      setOwned(data.owned_agents);
+    };
+    fetchUser();
+  }, []);
 
   return (
     <DashboardLayout>
@@ -122,12 +43,13 @@ export default function MyAgentsPage() {
         <h1 className="text-3xl font-bold">My Purchased Agents</h1>
       </div>
 
-      {user?.owned_agents.length === 0 ? (
+      {owned.length === 0 ? (
         <Card>
           <CardHeader>
             <CardTitle>No Agents Found</CardTitle>
             <CardDescription>
-              You haven't purchased any agents yet. Browse our marketplace to find AI agents.
+              You haven't purchased any agents yet. Browse our marketplace to
+              find AI agents.
             </CardDescription>
             <Link href="/agents">
               <Button>Browse Agents</Button>
@@ -136,7 +58,7 @@ export default function MyAgentsPage() {
         </Card>
       ) : (
         <div className="space-y-4">
-          {user?.owned_agents.map((agent) => (
+          {owned.map((agent) => (
             <Card key={agent.id}>
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">

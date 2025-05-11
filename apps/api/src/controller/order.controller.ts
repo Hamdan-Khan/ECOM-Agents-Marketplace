@@ -21,26 +21,26 @@ export class OrderController {
 
   @Post()
   async create(@Body() dto: CreateOrderDto) {
-    return this.orderService.create(dto); // was createOrder
+    return this.orderService.create(dto);
   }
 
   @Get()
   async findAll(@Query() query: FindOrdersDto) {
-    return this.orderService.findAll(query); // was findOrders
+    return this.orderService.findAll(query);
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return this.orderService.findOne(id); // was findOrderById
+    return this.orderService.findOne(id);
   }
 
   @Patch(':id')
   async update(@Param('id') id: string, @Body() dto: UpdateOrderDto) {
-    return this.orderService.update(id, dto); // was updateOrder
+    return this.orderService.update(id, dto);
   }
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    return this.orderService.remove(id); // was deleteOrder
+    return this.orderService.remove(id);
   }
 }

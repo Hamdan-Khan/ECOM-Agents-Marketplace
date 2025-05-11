@@ -1,52 +1,46 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 import {
-  LayoutDashboard,
-  Users,
   Bot,
-  ShoppingCart,
   CreditCard,
-  Settings,
-} from "lucide-react"
+  LayoutDashboard,
+  ShoppingCart,
+  Users,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const sidebarItems = [
   {
     title: "Overview",
     href: "/admin",
-    icon: LayoutDashboard
+    icon: LayoutDashboard,
   },
   {
     title: "Users",
     href: "/admin/users",
-    icon: Users
+    icon: Users,
   },
   {
     title: "Agents",
     href: "/admin/agents",
-    icon: Bot
+    icon: Bot,
   },
   {
     title: "Orders",
     href: "/admin/orders",
-    icon: ShoppingCart
+    icon: ShoppingCart,
   },
   {
     title: "Payments",
     href: "/admin/payments",
-    icon: CreditCard
+    icon: CreditCard,
   },
-  {
-    title: "Settings",
-    href: "/admin/settings",
-    icon: Settings
-  }
-]
+];
 
 export function AdminSidebar() {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   return (
     <div className="w-64 bg-background border-r min-h-screen p-6">
@@ -56,7 +50,7 @@ export function AdminSidebar() {
       </div>
       <nav className="space-y-2">
         {sidebarItems.map((item) => {
-          const isActive = pathname === item.href
+          const isActive = pathname === item.href;
           return (
             <Link
               key={item.href}
@@ -71,9 +65,9 @@ export function AdminSidebar() {
               <item.icon className="h-4 w-4" />
               {item.title}
             </Link>
-          )
+          );
         })}
       </nav>
     </div>
-  )
-} 
+  );
+}

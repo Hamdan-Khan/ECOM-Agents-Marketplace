@@ -1,6 +1,5 @@
 "use client";
 
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { apiGet } from "@/services/api";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -33,12 +32,6 @@ export default function PaymentSuccessPage() {
   return (
     <div className="max-w-2xl mx-auto mt-20 p-6 border rounded-lg shadow-sm">
       <h1 className="text-2xl font-bold mb-4">Payment Successful</h1>
-
-      {error && (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
 
       {session ? (
         <div className="space-y-4">

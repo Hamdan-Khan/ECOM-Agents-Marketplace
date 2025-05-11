@@ -1,16 +1,23 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { AdminLayout } from "@/components/admin/layout"
+import { AdminLayout } from "@/components/admin/layout";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -18,103 +25,96 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { useToast } from "@/hooks/use-toast"
-import { apiGet } from "@/services/api"
-import { Loader2 } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+} from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
+import { apiGet } from "@/services/api";
+import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface Order {
-  id: string
-  user_id: string
-  agent_id: string
-  payment_status: string
-  order_type: string
-  price: number
-  created_at: string
-  user_name: string
-  agent_name: string
+  id: string;
+  user_id: string;
+  agent_id: string;
+  payment_status: string;
+  order_type: string;
+  price: number;
+  created_at: string;
+  user_name: string;
+  agent_name: string;
 }
 
 interface OrderDetails extends Order {
   payment_history: Array<{
-    id: string
-    status: string
-    amount: number
-    created_at: string
-  }>
+    id: string;
+    status: string;
+    amount: number;
+    created_at: string;
+  }>;
 }
 
 export default function OrdersPage() {
-  const [orders, setOrders] = useState<Order[]>([])
-  const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState("")
-  const [viewOrder, setViewOrder] = useState<OrderDetails | null>(null)
-  const [loadingDetails, setLoadingDetails] = useState(false)
-  const { toast } = useToast()
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [viewOrder, setViewOrder] = useState<OrderDetails | null>(null);
+  const [loadingDetails, setLoadingDetails] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
-    fetchOrders()
-  }, [])
+    fetchOrders();
+  }, []);
 
   const fetchOrders = async () => {
     try {
-      setLoading(true)
-      const data = await apiGet<{ items: Order[] }>("/orders")
-      setOrders(data.items || [])
+      setLoading(true);
+      const data = await apiGet<{ items: Order[] }>("/orders");
+      setOrders(data.items || []);
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to fetch orders",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleView = async (order: Order) => {
     try {
-      setLoadingDetails(true)
-      const details = await apiGet<OrderDetails>(`/orders/${order.id}`)
-      setViewOrder(details)
+      setLoadingDetails(true);
+      const details = await apiGet<OrderDetails>(`/orders/${order.id}`);
+      setViewOrder(details);
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to fetch order details",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoadingDetails(false)
+      setLoadingDetails(false);
     }
-  }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "completed":
-        return "bg-green-100 text-green-800"
+        return "bg-green-100 text-green-800";
       case "pending":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-yellow-100 text-yellow-800";
       case "failed":
-        return "bg-red-100 text-red-800"
+        return "bg-red-100 text-red-800";
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800";
     }
-  }
+  };
 
   const filteredOrders = orders.filter(
     (order) =>
       order.id.toString().includes(search) ||
       order.user_name?.toLowerCase().includes(search.toLowerCase()) ||
       order.agent_name?.toLowerCase().includes(search.toLowerCase())
-  )
+  );
 
   return (
     <AdminLayout>
@@ -136,7 +136,9 @@ export default function OrdersPage() {
         <Card>
           <CardHeader>
             <CardTitle>All Orders</CardTitle>
-            <CardDescription>View and manage marketplace orders</CardDescription>
+            <CardDescription>
+              View and manage marketplace orders
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
@@ -161,7 +163,7 @@ export default function OrdersPage() {
                     <TableCell>
                       <Badge variant="secondary">{order.order_type}</Badge>
                     </TableCell>
-                    <TableCell>${order.price.toFixed(2)}</TableCell>
+                    <TableCell>${Number(order.price).toFixed(2)}</TableCell>
                     <TableCell>
                       <Badge
                         className={getStatusColor(order.payment_status)}
@@ -209,7 +211,8 @@ export default function OrdersPage() {
                   <h3 className="font-medium mb-2">Order Information</h3>
                   <div className="space-y-1 text-sm">
                     <p>
-                      <span className="font-medium">Order ID:</span> {viewOrder.id}
+                      <span className="font-medium">Order ID:</span>{" "}
+                      {viewOrder.id}
                     </p>
                     <p>
                       <span className="font-medium">Type:</span>{" "}
@@ -217,7 +220,7 @@ export default function OrdersPage() {
                     </p>
                     <p>
                       <span className="font-medium">Price:</span> $
-                      {viewOrder.price.toFixed(2)}
+                      {Number(viewOrder.price).toFixed(2)}
                     </p>
                     <p>
                       <span className="font-medium">Status:</span>{" "}
@@ -283,5 +286,5 @@ export default function OrdersPage() {
         </DialogContent>
       </Dialog>
     </AdminLayout>
-  )
-} 
+  );
+}
