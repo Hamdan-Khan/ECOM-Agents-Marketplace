@@ -16,6 +16,16 @@ interface User {
   token_balance: number
 }
 
+interface Order {
+  id: string
+  agent: {
+    id: string
+  }
+  order_type: 'one-time' | 'subscription'
+  amount: number
+  payment_status: string
+}
+
 interface DashboardStats {
   totalAgents: number
   totalOrders: number
@@ -27,7 +37,6 @@ export default function DashboardPage() {
   const router = useRouter()
   const { user: authUser, isInitialized, isLoading: authLoading } = useAuth()
   const { toast } = useToast()
-  const [user, setUser] = useState<User | null>(null)
   const [stats, setStats] = useState<DashboardStats>({
     totalAgents: 0,
     totalOrders: 0,
@@ -37,26 +46,36 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Wait for auth to be initialized
     if (!isInitialized) return
-
-    // Redirect if not authenticated
     if (!authLoading && !authUser) {
       router.push('/login')
       return
     }
 
     const fetchDashboardData = async () => {
+      if (!authUser?.id) return
+
       try {
         setLoading(true)
-        const [profile, statsData] = await Promise.all([
-          apiGet<User>("/users/profile"),
-          apiGet<DashboardStats>("/users/stats")
-        ])
+        // Fetch user's orders
+        const ordersResponse = await apiGet<{ items: Order[] }>(`/orders?userId=${authUser.id}`)
+        const orders = ordersResponse.items || []
 
-        setUser(profile)
-        setStats(statsData)
+        // Calculate dashboard stats from orders
+        const uniqueAgents = new Set(orders.map(order => order.agent?.id).filter(Boolean))
+        const activeSubscriptions = orders.filter(order => 
+          order.order_type === 'subscription' && order.payment_status === 'COMPLETED'
+        )
+        const totalSpent = orders.reduce((sum, order) => sum + (order.amount || 0), 0)
+
+        setStats({
+          totalAgents: uniqueAgents.size,
+          totalOrders: orders.length,
+          totalSpent: totalSpent,
+          activeSubscriptions: activeSubscriptions.length
+        })
       } catch (error: any) {
+        console.error('Error fetching dashboard data:', error)
         toast({
           title: "Error",
           description: error.message || "Failed to fetch dashboard data",
@@ -111,7 +130,7 @@ export default function DashboardPage() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium">
-                Total Agents
+                Total Purchased Agents
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -169,7 +188,7 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Welcome back, {user?.name || authUser.name}!</CardTitle>
+            <CardTitle>Welcome back, {authUser.name}!</CardTitle>
             <CardDescription>
               Here's an overview of your AI agent marketplace activity.
             </CardDescription>
@@ -177,11 +196,11 @@ export default function DashboardPage() {
           <CardContent>
             <div className="space-y-2">
               <p>
-                <span className="font-medium">Email:</span> {user?.email || authUser.email}
+                <span className="font-medium">Email:</span> {authUser.email}
               </p>
               <p>
                 <span className="font-medium">Token Balance:</span>{" "}
-                {user?.token_balance || authUser.token_balance || 0} tokens
+                {authUser.token_balance || 0} tokens
               </p>
             </div>
           </CardContent>
