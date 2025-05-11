@@ -16,6 +16,14 @@ import { format } from "date-fns";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+interface Order {
+  id: string;
+  agent: Agent;
+  type: 'one-time' | 'subscription';
+  created_at: string;
+}
 
 export interface Agent {
   id: string;
@@ -33,25 +41,84 @@ export default function MyAgentsPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { user, isAdmin } = useAuth();
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [deletingAgentId, setDeletingAgentId] = useState<string | null>(null);
 
-  if (!user) {
-    return (
-      <div className="h-40 flex items-center justify-center">
-        You must be logged in
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (user) {
+      fetchPurchasedAgents();
+    }
+  }, [user]);
+
+  const fetchPurchasedAgents = async () => {
+    if (!user?.id) return;
+    
+    try {
+      setLoading(true);
+      // Get all orders for the current user
+      const ordersResponse = await apiGet<{ 
+        items: Array<{ agent: Agent; type: 'one-time' | 'subscription' }>
+      }>(`/orders?userId=${user.id}`);
+
+      
+
+      // Extract unique agents from the orders
+      const uniqueAgents = new Map<string, Agent>();
+      ordersResponse.items?.forEach(order => {
+        if (order.agent) {
+          uniqueAgents.set(order.agent.id, order.agent);
+        }
+      });
+
+      setAgents(Array.from(uniqueAgents.values()));
+    } catch (error: any) {
+      console.error('Error fetching agents:', error);
+      if (error.status === 401) {
+        router.push("/login");
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error", 
+          description: error.message || "Failed to fetch your agents"
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (agent: Agent) => {
+    if (!window.confirm(`Are you sure you want to delete "${agent.name}"?`))
+      return;
+
+    try {
+      setDeletingAgentId(agent.id);
+      await apiPost(`/agents/${agent.id}`, {}, { method: "DELETE" });
+      toast({
+        title: "Success",
+        description: "Agent deleted successfully"
+      });
+      await fetchPurchasedAgents();
+    } catch (error: any) {
+      if (error.status === 401) {
+        router.push("/login");
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error.message || "Failed to delete agent"
+        });
+      }
+    } finally {
+      setDeletingAgentId(null);
+    }
+  };
 
   return (
     <DashboardLayout>
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">My Agents</h1>
-        {isAdmin && (
-          <Button onClick={() => router.push("/dashboard/create-agent")}>
-            <Plus className="w-4 h-4 mr-2" />
-            Create Agent
-          </Button>
-        )}
+        <h1 className="text-3xl font-bold">My Purchased Agents</h1>
       </div>
 
       {user.owned_agents.length === 0 ? (
@@ -59,8 +126,7 @@ export default function MyAgentsPage() {
           <CardHeader>
             <CardTitle>No Agents Found</CardTitle>
             <CardDescription>
-              You don't own any agents yet. Click this button to browse and buy
-              your first agent.
+              You haven't purchased any agents yet. Browse our marketplace to find AI agents.
             </CardDescription>
             <Link href="/agents">
               <Button>Browse Agents</Button>
