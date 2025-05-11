@@ -41,6 +41,8 @@ interface OrdersResponse {
   pages: number;
 }
 
+
+
 interface DashboardStats {
   totalAgents: number;
   totalOrders: number;
@@ -103,6 +105,7 @@ export default function DashboardPage() {
           .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
           .slice(0, 5)
 
+
         setStats({
           totalAgents: uniqueAgents.size,
           totalOrders: orders.length,
@@ -110,6 +113,7 @@ export default function DashboardPage() {
           activeSubscriptions: activeSubscriptions.length,
           recentOrders,
           activeSubscriptionOrders: activeSubscriptions
+
         })
       } catch (error: any) {
         console.error('Error fetching dashboard data:', error)
