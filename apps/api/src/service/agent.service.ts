@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 import { AgentEntity } from '../database/entities/agent.entity';
-import { UserEntity } from '../database/entities/user.entity';
+import { UserEntity, UserRole } from '../database/entities/user.entity';
 import {
   AgentResponseDto,
   CreateAgentDto,
@@ -152,8 +152,14 @@ export class AgentService {
       throw new NotFoundException(`Agent with ID ${id} not found`);
     }
 
-    // Check if the user is the creator of the agent
-    if (agent.created_by.id !== userId) {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }    // Allow admins to delete any agent, or creators to delete their own
+    if (user.role !== UserRole.ADMIN && agent.created_by.id !== userId) {
       throw new ForbiddenException(
         'You do not have permission to delete this agent',
       );

@@ -8,8 +8,10 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { User } from '../decorators/user.decorator';
+import { JwtAuthGuard } from '../auth/auth.guard';
 import {
   AgentResponseDto,
   CreateAgentDto,
@@ -23,7 +25,7 @@ export class AgentController {
   constructor(private readonly agentService: AgentService) {}
 
   @Post()
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async create(
     @Body() createAgentDto: CreateAgentDto,
     @User('id') userId: string,
@@ -53,7 +55,7 @@ export class AgentController {
   }
 
   @Patch(':id')
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateAgentDto: UpdateAgentDto,
@@ -63,7 +65,7 @@ export class AgentController {
   }
 
   @Delete(':id')
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async remove(
     @Param('id', ParseUUIDPipe) id: string,
     @User('id') userId: string,
