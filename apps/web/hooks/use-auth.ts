@@ -1,3 +1,4 @@
+import { Agent } from "@/app/dashboard/my-agents/page";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
@@ -6,6 +7,7 @@ interface User {
   name: string;
   email: string;
   role: string;
+  owned_agents: Agent[];
   token_balance: number;
 }
 

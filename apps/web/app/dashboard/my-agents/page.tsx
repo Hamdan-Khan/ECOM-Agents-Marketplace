@@ -12,13 +12,11 @@ import {
 } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
-import { apiGet, apiPost } from "@/services/api";
 import { format } from "date-fns";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 
-interface Agent {
+export interface Agent {
   id: string;
   name: string;
   description: string;
@@ -34,68 +32,14 @@ export default function MyAgentsPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { user, isAdmin } = useAuth();
-  const [agents, setAgents] = useState<Agent[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [deletingAgentId, setDeletingAgentId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (user) {
-      fetchAgents();
-    }
-  }, [user]);
-
-  const fetchAgents = async () => {
-    try {
-      setLoading(true);
-      const response = await apiGet<{ items: Agent[] }>("/agents/");
-      console.log(response);
-
-      setAgents(response.items || []);
-    } catch (error: any) {
-      if (error.status === 401) {
-        router.push("/login");
-      } else {
-        toast({
-          title: "Error",
-          description: error.message || "Failed to fetch agents",
-          variant: "destructive",
-        });
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleEdit = (agent: Agent) => {
-    router.push(`/dashboard/my-agents/${agent.id}/edit`);
-  };
-
-  const handleDelete = async (agent: Agent) => {
-    if (!window.confirm(`Are you sure you want to delete "${agent.name}"?`))
-      return;
-
-    try {
-      setDeletingAgentId(agent.id);
-      await apiPost(`/agents/${agent.id}`, {}, { method: "DELETE" });
-      toast({
-        title: "Success",
-        description: "Agent deleted successfully",
-      });
-      await fetchAgents();
-    } catch (error: any) {
-      if (error.status === 401) {
-        router.push("/login");
-      } else {
-        toast({
-          title: "Error",
-          description: error.message || "Failed to delete agent",
-          variant: "destructive",
-        });
-      }
-    } finally {
-      setDeletingAgentId(null);
-    }
-  };
+  if (!user) {
+    return (
+      <div className="h-40 flex items-center justify-center">
+        You must be logged in
+      </div>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -109,21 +53,7 @@ export default function MyAgentsPage() {
         )}
       </div>
 
-      {loading ? (
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <Card key={i} className="animate-pulse">
-              <CardHeader className="pb-4">
-                <div className="h-6 bg-gray-200 rounded w-1/4"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/3 mt-2"></div>
-              </CardHeader>
-              <CardContent>
-                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : agents.length === 0 ? (
+      {user.owned_agents.length === 0 ? (
         <Card>
           <CardHeader>
             <CardTitle>No Agents Found</CardTitle>
@@ -135,7 +65,7 @@ export default function MyAgentsPage() {
         </Card>
       ) : (
         <div className="space-y-4">
-          {agents.map((agent) => (
+          {user.owned_agents.map((agent) => (
             <Card key={agent.id}>
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
