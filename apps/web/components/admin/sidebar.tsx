@@ -1,13 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import {
-  Bot,
-  CreditCard,
-  LayoutDashboard,
-  ShoppingCart,
-  Users,
-} from "lucide-react";
+import { Bot, LayoutDashboard, ShoppingCart, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -31,11 +25,6 @@ const sidebarItems = [
     title: "Orders",
     href: "/admin/orders",
     icon: ShoppingCart,
-  },
-  {
-    title: "Payments",
-    href: "/admin/payments",
-    icon: CreditCard,
   },
 ];
 
