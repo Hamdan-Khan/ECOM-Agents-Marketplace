@@ -1,27 +1,42 @@
-// app/how-it-works/page.tsx
-
 export default function HowItWorksPage() {
   return (
-    <main className="p-6 max-w-4xl mx-auto text-gray-800">
+    <main className="p-6 max-w-4xl mx-auto">
       <h1 className="text-4xl font-bold mb-6">How AI Exchange Works</h1>
 
       <section className="mb-10">
         <h2 className="text-2xl font-semibold mb-2">What is AI Exchange?</h2>
         <p>
-          <strong>AI Exchange</strong> is a web-based marketplace where AI developers can list, sell, and manage access
-          to their specialized AI agents. It also serves businesses and end-users by providing a streamlined platform to
-          discover, evaluate, and purchase AI-powered solutions tailored to their specific needs.
+          <strong>AI Exchange</strong> is a web-based marketplace where AI
+          developers can list, sell, and manage access to their specialized AI
+          agents. It also serves businesses and end-users by providing a
+          streamlined platform to discover, evaluate, and purchase AI-powered
+          solutions tailored to their specific needs.
         </p>
       </section>
 
       <section className="mb-10">
         <h2 className="text-2xl font-semibold mb-2">How It Works</h2>
         <ol className="list-decimal pl-6 space-y-2">
-          <li><strong>Sign Up:</strong> Users and developers register on the platform.</li>
-          <li><strong>Browse AI Agents:</strong> Explore categorized AI agents like NLP tools, vision models, bots, and analytics.</li>
-          <li><strong>Purchase or Subscribe:</strong> Buy agents directly, subscribe monthly, or use tokens/credits.</li>
-          <li><strong>Integrate Easily:</strong> Minimal setup to plug AI agents into your workflow.</li>
-          <li><strong>Admin Features:</strong> Developers can manage listings and transactions via a dedicated dashboard.</li>
+          <li>
+            <strong>Sign Up:</strong> Users and developers register on the
+            platform.
+          </li>
+          <li>
+            <strong>Browse AI Agents:</strong> Explore categorized AI agents
+            like NLP tools, vision models, bots, and analytics.
+          </li>
+          <li>
+            <strong>Purchase or Subscribe:</strong> Buy agents directly,
+            subscribe monthly, or use tokens/credits.
+          </li>
+          <li>
+            <strong>Integrate Easily:</strong> Minimal setup to plug AI agents
+            into your workflow.
+          </li>
+          <li>
+            <strong>Admin Features:</strong> Developers can manage listings and
+            transactions via a dedicated dashboard.
+          </li>
         </ol>
       </section>
 
@@ -39,8 +54,10 @@ export default function HowItWorksPage() {
       <section className="mb-10">
         <h2 className="text-2xl font-semibold mb-2">Why It Matters</h2>
         <p>
-          AI Exchange fills a gap in the market by offering a dedicated, centralized space for pre-built AI solutions.
-          It saves time and money, accelerates adoption of AI technologies, and opens new monetization opportunities for developers.
+          AI Exchange fills a gap in the market by offering a dedicated,
+          centralized space for pre-built AI solutions. It saves time and money,
+          accelerates adoption of AI technologies, and opens new monetization
+          opportunities for developers.
         </p>
       </section>
 

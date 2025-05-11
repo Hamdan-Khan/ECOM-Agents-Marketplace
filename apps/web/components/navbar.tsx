@@ -13,13 +13,7 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useCart } from "@/contexts/cart-context";
 import { useAuth } from "@/hooks/use-auth";
-import {
-  LayoutDashboard,
-  LogOut,
-  Menu,
-  Settings,
-  ShoppingCart,
-} from "lucide-react";
+import { LayoutDashboard, LogOut, Menu, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -57,6 +51,7 @@ export default function Navbar() {
   const navLinks = [
     { name: "Home", href: "/" },
     { name: "AI Agents", href: "/agents" },
+    { name: "Dashboard", href: "/dashboard", isProtected: true },
     { name: "How It Works", href: "/how-it-works" },
   ];
 
@@ -72,19 +67,26 @@ export default function Navbar() {
             </Link>
 
             <nav className="hidden md:flex gap-6">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`text-sm font-medium transition-colors hover:text-primary ${
-                    pathname === link.href
-                      ? "text-primary"
-                      : "text-muted-foreground"
-                  }`}
-                >
-                  {link.name}
-                </Link>
-              ))}
+              {navLinks
+                .filter((link) => {
+                  if (link.isProtected) {
+                    return user != null;
+                  }
+                  return true;
+                })
+                .map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`text-sm font-medium transition-colors hover:text-primary ${
+                      pathname === link.href
+                        ? "text-primary"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    {link.name}
+                  </Link>
+                ))}
             </nav>
           </div>
 
@@ -129,12 +131,6 @@ export default function Navbar() {
                     <Link href="/dashboard" className="cursor-pointer">
                       <LayoutDashboard className="mr-2 h-4 w-4" />
                       Dashboard
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard/settings" className="cursor-pointer">
-                      <Settings className="mr-2 h-4 w-4" />
-                      Settings
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />

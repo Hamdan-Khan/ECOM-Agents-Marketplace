@@ -2,6 +2,7 @@
 
 import type React from "react";
 
+import LoggedInFallback from "@/components/logged-in-fallback";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -62,8 +63,7 @@ export default function RegisterPage() {
   };
 
   if (user) {
-    router.push("/dashboard");
-    return null;
+    return <LoggedInFallback />;
   }
 
   return (

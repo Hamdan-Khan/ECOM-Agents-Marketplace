@@ -2,6 +2,7 @@
 
 import type React from "react";
 
+import LoggedInFallback from "@/components/logged-in-fallback";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -70,15 +71,7 @@ export default function LoginPage() {
   };
 
   if (user) {
-    // router.push("/dashboard");
-    return (
-      <div>
-        Already logged in
-        <Link href="/dashboard">
-          <button>Go to dashboard</button>
-        </Link>
-      </div>
-    );
+    return <LoggedInFallback />;
   }
 
   return (
