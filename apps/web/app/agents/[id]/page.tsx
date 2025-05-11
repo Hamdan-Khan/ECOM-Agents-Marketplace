@@ -138,21 +138,29 @@ export default function AgentDetailPage() {
                   )}
                 </CardContent>
                 <CardFooter className="flex flex-col gap-2">
-                  <div className="w-full flex justify-between">
-                    <Button
+                  <div className="w-full flex justify-between">                    <Button
                       className="w-[48%]"
                       onClick={() => {
-                        addItem({
+                        const result = addItem({
                           id: agent.id,
                           name: agent.name,
                           price: Number(agent.price),
                           purchaseType: "one-time",
                         });
-                        toast({
-                          title: "Added to Cart",
-                          variant: "default",
-                          description: `${agent.name} Added to Card Succesfully`,
-                        });
+                        
+                        if (result.success) {
+                          toast({
+                            title: "Added to Cart",
+                            variant: "default",
+                            description: `${agent.name} added to cart successfully`,
+                          });
+                        } else {
+                          toast({
+                            title: "Already in Cart",
+                            variant: "destructive",
+                            description: result.message,
+                          });
+                        }
                       }}
                     >
                       Add To Cart
@@ -160,13 +168,22 @@ export default function AgentDetailPage() {
                     <Button
                       className="w-[48%]"
                       onClick={() => {
-                        addItem({
+                        const result = addItem({
                           id: agent.id,
                           name: agent.name,
                           price: Number(agent.price),
                           purchaseType: "one-time",
                         });
-                        router.push("/cart");
+                        
+                        if (result.success) {
+                          router.push("/cart");
+                        } else {
+                          toast({
+                            title: "Already in Cart",
+                            variant: "destructive",
+                            description: result.message,
+                          });
+                        }
                       }}
                     >
                       Buy Now

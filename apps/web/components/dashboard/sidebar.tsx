@@ -32,11 +32,7 @@ const sidebarItems = [
     href: "/dashboard/orders",
     icon: ShoppingCart,
   },
-  {
-    title: "API Keys",
-    href: "/dashboard/api-keys",
-    icon: Key,
-  },
+  
 ];
 
 export function DashboardSidebar() {

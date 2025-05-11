@@ -19,7 +19,7 @@ export type CartItem = {
 
 type CartContextType = {
   items: CartItem[];
-  addItem: (item: Omit<CartItem, "quantity">) => void;
+  addItem: (item: Omit<CartItem, "quantity">) => { success: boolean; message?: string };
   removeItem: (id: number, purchaseType: "one-time" | "subscription") => void;
   updateQuantity: (
     id: number,
@@ -29,6 +29,7 @@ type CartContextType = {
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
+  hasItem: (id: number, purchaseType: "one-time" | "subscription") => boolean;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -58,30 +59,29 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("cart", JSON.stringify(items));
   }, [items]);
 
-  const addItem = (newItem: Omit<CartItem, "quantity">) => {
-    setItems((prevItems) => {
-      // Check if item already exists in cart with same purchase type
-      const existingItemIndex = prevItems.findIndex(
-        (item) =>
-          item.id === newItem.id && item.purchaseType === newItem.purchaseType
-      );
-
-      if (existingItemIndex >= 0) {
-        // Update quantity of existing item
-        const updatedItems = [...prevItems];
-        updatedItems[existingItemIndex].quantity += 1;
-        return updatedItems;
-      } else {
-        // Add new item with quantity 1
-        return [...prevItems, { ...newItem, quantity: 1 }];
-      }
-    });
+  const hasItem = (id: number, purchaseType: "one-time" | "subscription"): boolean => {
+    return items.some(
+      (item) => item.id === id && item.purchaseType === purchaseType
+    );
   };
 
-  const removeItem = (
-    id: number,
-    purchaseType: "one-time" | "subscription"
-  ) => {
+  const addItem = (newItem: Omit<CartItem, "quantity">) => {
+    const existingItem = items.find(
+      (item) => item.id === newItem.id && item.purchaseType === newItem.purchaseType
+    );
+
+    if (existingItem) {
+      return {
+        success: false,
+        message: "This item is already in your cart"
+      };
+    }
+
+    setItems((prevItems) => [...prevItems, { ...newItem, quantity: 1 }]);
+    return { success: true };
+  };
+
+  const removeItem = (id: number, purchaseType: "one-time" | "subscription") => {
     setItems((prevItems) =>
       prevItems.filter(
         (item) => !(item.id === id && item.purchaseType === purchaseType)
@@ -111,13 +111,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const clearCart = () => {
     setItems([]);
   };
-
-  const totalItems = items.reduce((total, item) => total + item.quantity, 0);
-
-  const totalPrice = items.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
+  
+  // Calculate totals efficiently in one pass
+  const total = items.reduce(
+    (acc, item) => ({
+      items: acc.items + item.quantity,
+      price: acc.price + item.price * item.quantity,
+    }),
+    { items: 0, price: 0 }
   );
+
+  const totalItems = total.items;
+  const totalPrice = total.price;
 
   return (
     <CartContext.Provider
@@ -129,6 +134,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         clearCart,
         totalItems,
         totalPrice,
+        hasItem
       }}
     >
       {children}

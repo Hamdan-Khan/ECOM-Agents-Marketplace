@@ -1,21 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AgentEntity } from 'src/database/entities/agent.entity';
 import { UserEntity } from 'src/database/entities/user.entity';
+import { OrderService } from './order.service';
+import { PaymentStatus, OrderType } from 'src/database/entities/order.entity';
 import Stripe from 'stripe';
 import { In, Repository } from 'typeorm';
 
 @Injectable()
 export class StripeService {
   private stripe: Stripe;
-
   constructor(
     private configService: ConfigService,
     @InjectRepository(UserEntity)
     private readonly userRepo: Repository<UserEntity>,
     @InjectRepository(AgentEntity)
     private readonly agentsRepo: Repository<AgentEntity>,
+    @Inject(forwardRef(() => OrderService))
+    private readonly orderService: OrderService,
   ) {
     const stripeSecretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
     if (!stripeSecretKey) {
@@ -69,9 +72,7 @@ export class StripeService {
       console.error('Error creating checkout session:', error);
       throw new Error('Could not create checkout session');
     }
-  }
-
-  async handleSuccessSession(sessionId: string) {
+  }  async handleSuccessSession(sessionId: string) {
     try {
       const session = await this.stripe.checkout.sessions.retrieve(sessionId);
       const userId = session.metadata!.userId;
@@ -95,14 +96,27 @@ export class StripeService {
         user.owned_agents = [];
       }
 
+      // Add agents to user's owned agents
       user.owned_agents = [...user.owned_agents, ...agents];
-
       await this.userRepo.save(user);
+
+      // Create orders for each agent
+      for (const agent of agents) {
+        await this.orderService.create({
+          user_id: userId,
+          agent_id: agent.id,
+          payment_status: PaymentStatus.COMPLETED,
+          order_type: OrderType.ONE_TIME,
+          price: agent.price,
+          transaction_id: session.payment_intent as string,
+          created_by: userId
+        });
+      }
 
       return session;
     } catch (error) {
-      console.error('Error updating user owned agents:', error);
-      throw new Error('Could not update user owned agents');
+      console.error('Error handling success session:', error);
+      throw new Error('Could not process successful payment');
     }
   }
 }

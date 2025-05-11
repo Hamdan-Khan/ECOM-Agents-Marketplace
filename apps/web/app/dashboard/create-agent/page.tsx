@@ -16,6 +16,22 @@ import { useToast } from "@/hooks/use-toast";
 import { apiPost } from "@/services/api";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+// Agent categories enum
+const AGENT_CATEGORIES = {
+  NLP: 'NLP',
+  COMPUTER_VISION: 'COMPUTER_VISION',
+  ANALYTICS: 'ANALYTICS', 
+  BOTS: 'BOTS',
+  WORKFLOW_HELPERS: 'WORKFLOW_HELPERS'
+} as const;
 
 interface FormData {
   name: string;
@@ -137,13 +153,21 @@ export default function CreateAgentPage() {
                 <label className="text-sm font-medium" htmlFor="category">
                   Category *
                 </label>
-                <Input
-                  id="category"
+                <Select
                   value={formData.category}
-                  onChange={(e) => handleChange("category", e.target.value)}
-                  placeholder="Enter agent category"
-                  required
-                />
+                  onValueChange={(value) => handleChange("category", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(AGENT_CATEGORIES).map(([key, value]) => (
+                      <SelectItem key={value} value={value}>
+                        {value.replace(/_/g, ' ')}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">

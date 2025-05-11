@@ -1,4 +1,5 @@
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/toaster";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import type React from "react";
@@ -31,6 +32,7 @@ export default function RootLayout({
           <Providers>
             <Navbar />
             {children}
+            <Toaster />
           </Providers>
         </ThemeProvider>
       </body>

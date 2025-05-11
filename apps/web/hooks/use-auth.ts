@@ -20,6 +20,7 @@ interface AuthState {
   logout: () => void;
   setIsLoading: (isLoading: boolean) => void;
   setIsAdmin: (isAdmin: boolean) => void;
+  setUser: (user: User) => void;
   isAdmin: boolean;
 }
 
@@ -40,6 +41,7 @@ export const useAuth = create<AuthState>()(
       },
       setIsLoading: (isLoading: boolean) => set({ isLoading }),
       setIsAdmin: (isAdmin: boolean) => set({ isAdmin }),
+      setUser: (user: User) => set({user}),
       isAdmin: false,
     }),
     {
