@@ -7,30 +7,47 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useAuth } from "@/hooks/use-auth"
 import { useToast } from "@/hooks/use-toast"
 import { apiGet } from "@/services/api"
-import { Bot, ShoppingCart, CreditCard, Loader2 } from "lucide-react"
+import { Bot, ShoppingCart, CreditCard, Loader2, Clock } from "lucide-react"
 
 interface User {
-  id: string
-  name: string
-  email: string
-  token_balance: number
+  id: string;
+  name: string;
+  email: string;
+  token_balance: number;
+}
+
+interface Agent {
+  id: string;
+  name: string;
+  price: string;
+  subscription_price?: string;
 }
 
 interface Order {
-  id: string
-  agent: {
-    id: string
-  }
-  order_type: 'one-time' | 'subscription'
-  amount: number
-  payment_status: string
+  id: string;
+  agent_id: string;
+  payment_status: 'COMPLETED' | 'PENDING' | 'FAILED';
+  order_type: 'ONE_TIME' | 'SUBSCRIPTION';
+  price: string;
+  created_at: string;
+  agent?: Agent;
+}
+
+interface OrdersResponse {
+  items: Order[];
+  total: number;
+  page: number;
+  limit: number;
+  pages: number;
 }
 
 interface DashboardStats {
-  totalAgents: number
-  totalOrders: number
-  totalSpent: number
-  activeSubscriptions: number
+  totalAgents: number;
+  totalOrders: number;
+  totalSpent: number;
+  activeSubscriptions: number;
+  recentOrders: Order[];
+  activeSubscriptionOrders: Order[];
 }
 
 export default function DashboardPage() {
@@ -41,7 +58,9 @@ export default function DashboardPage() {
     totalAgents: 0,
     totalOrders: 0,
     totalSpent: 0,
-    activeSubscriptions: 0
+    activeSubscriptions: 0,
+    recentOrders: [],
+    activeSubscriptionOrders: []
   })
   const [loading, setLoading] = useState(true)
 
@@ -57,22 +76,40 @@ export default function DashboardPage() {
 
       try {
         setLoading(true)
+        
         // Fetch user's orders
-        const ordersResponse = await apiGet<{ items: Order[] }>(`/orders?userId=${authUser.id}`)
+        const ordersResponse = await apiGet<OrdersResponse>(`/orders?user_id=${authUser.id}`)
         const orders = ordersResponse.items || []
 
-        // Calculate dashboard stats from orders
-        const uniqueAgents = new Set(orders.map(order => order.agent?.id).filter(Boolean))
-        const activeSubscriptions = orders.filter(order => 
-          order.order_type === 'subscription' && order.payment_status === 'COMPLETED'
+        // Get unique agents (purchased or subscribed)
+        const uniqueAgents = new Set(orders
+          .filter(order => order.payment_status === 'COMPLETED')
+          .map(order => order.agent_id)
         )
-        const totalSpent = orders.reduce((sum, order) => sum + (order.amount || 0), 0)
+
+        // Get active subscriptions (completed subscription orders)
+        const activeSubscriptions = orders.filter(order => 
+          order.order_type === 'SUBSCRIPTION' && 
+          order.payment_status === 'COMPLETED'
+        )
+
+        // Calculate total spent from completed orders
+        const totalSpent = orders
+          .filter(order => order.payment_status === 'COMPLETED')
+          .reduce((sum, order) => sum + parseFloat(order.price), 0)
+
+        // Get 5 most recent orders
+        const recentOrders = [...orders]
+          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+          .slice(0, 5)
 
         setStats({
           totalAgents: uniqueAgents.size,
           totalOrders: orders.length,
           totalSpent: totalSpent,
-          activeSubscriptions: activeSubscriptions.length
+          activeSubscriptions: activeSubscriptions.length,
+          recentOrders,
+          activeSubscriptionOrders: activeSubscriptions
         })
       } catch (error: any) {
         console.error('Error fetching dashboard data:', error)
@@ -116,6 +153,19 @@ export default function DashboardPage() {
         </Card>
       </DashboardLayout>
     )
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "COMPLETED":
+        return "text-green-600"
+      case "PENDING":
+        return "text-yellow-600"
+      case "FAILED":
+        return "text-red-600"
+      default:
+        return "text-gray-600"
+    }
   }
 
   return (
@@ -179,8 +229,78 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center">
-                <Bot className="h-4 w-4 text-muted-foreground mr-2" />
+                <Clock className="h-4 w-4 text-muted-foreground mr-2" />
                 <span className="text-2xl font-bold">{stats.activeSubscriptions}</span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Transactions</CardTitle>
+              <CardDescription>
+                Your latest agent purchases and subscriptions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {stats.recentOrders.map(order => (
+                  <div key={order.id} className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
+                    <div>
+                      <p className="font-medium">{order.agent?.name || `Agent ${order.agent_id}`}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(order.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium">${parseFloat(order.price).toFixed(2)}</p>
+                      <p className={`text-sm ${getStatusColor(order.payment_status)}`}>
+                        {order.payment_status.charAt(0) + order.payment_status.slice(1).toLowerCase()}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+                {stats.recentOrders.length === 0 && (
+                  <p className="text-muted-foreground text-center py-4">
+                    No recent transactions found
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Active Subscriptions</CardTitle>
+              <CardDescription>
+                Your current active agent subscriptions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {stats.activeSubscriptionOrders.map(order => (
+                  <div key={order.id} className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
+                    <div>
+                      <p className="font-medium">{order.agent?.name || `Agent ${order.agent_id}`}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Started {new Date(order.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium">
+                        ${parseFloat(order.price).toFixed(2)}/month
+                      </p>
+                      <p className="text-sm text-green-600">Active</p>
+                    </div>
+                  </div>
+                ))}
+                {stats.activeSubscriptionOrders.length === 0 && (
+                  <p className="text-muted-foreground text-center py-4">
+                    No active subscriptions
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>

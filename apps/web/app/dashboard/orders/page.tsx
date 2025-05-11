@@ -4,35 +4,81 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { DashboardLayout } from "@/components/dashboard/layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/hooks/use-auth"
 import { apiGet } from "@/services/api"
 import { format } from "date-fns"
 import { Loader2 } from "lucide-react"
 
+interface Agent {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  price: string;
+}
+
 interface Order {
-  id: string
-  agent_name: string
-  amount: number
-  status: string
-  created_at: string
-  type: 'purchase' | 'subscription'
+  id: string;
+  user_id: string;
+  agent_id: string;
+  payment_status: 'COMPLETED' | 'PENDING' | 'FAILED';
+  order_type: 'ONE_TIME' | 'SUBSCRIPTION';
+  price: string;
+  transaction_id: string;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface OrderWithAgent extends Order {
+  agent: Agent | null;
+}
+
+interface OrdersResponse {
+  items: Order[];
+  total: number;
+  page: number;
+  limit: number;
+  pages: number;
 }
 
 export default function OrdersPage() {
   const router = useRouter()
   const { toast } = useToast()
-  const [orders, setOrders] = useState<Order[]>([])
+  const { user } = useAuth()
+  const [orders, setOrders] = useState<OrderWithAgent[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchOrders()
-  }, [])
+    if (user?.id) {
+      fetchOrders()
+    }
+  }, [user])
 
   const fetchOrders = async () => {
+    if (!user?.id) return
+
     try {
       setLoading(true)
-      const response = await apiGet<{ items: Order[] }>("/orders")
-      setOrders(response.items || [])
+      // Fetch orders for the current user
+      const ordersResponse = await apiGet<OrdersResponse>(`/orders?user_id=${user.id}`)
+      
+      // Fetch agent details for each order
+      const ordersWithAgents = await Promise.all(
+        ordersResponse.items.map(async (order) => {
+          try {
+            const agent = await apiGet<Agent>(`/agents/${order.agent_id}`)
+            return { ...order, agent }
+          } catch (error) {
+            console.error(`Failed to fetch agent for order ${order.id}:`, error)
+            return { ...order, agent: null }
+          }
+        })
+      )
+
+      setOrders(ordersWithAgents)
     } catch (error: any) {
       if (error.status === 401) {
         router.push("/login")
@@ -46,6 +92,25 @@ export default function OrdersPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "COMPLETED":
+        return "bg-green-100 text-green-800"
+      case "PENDING":
+        return "bg-yellow-100 text-yellow-800"
+      case "FAILED":
+        return "bg-red-100 text-red-800"
+      default:
+        return "bg-gray-100 text-gray-800"
+    }
+  }
+
+  // Guard for unauthenticated users
+  if (!user) {
+    router.push('/login')
+    return null
   }
 
   return (
@@ -83,20 +148,19 @@ export default function OrdersPage() {
             <Card key={order.id}>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle>{order.agent_name}</CardTitle>
-                  <span className={`text-sm px-2 py-1 rounded-full ${
-                    order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                    order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
-                    {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                  </span>
+                  <CardTitle>{order.agent?.name || `Agent ${order.agent_id}`}</CardTitle>
+                  <Badge
+                    variant="secondary"
+                    className={getStatusColor(order.payment_status)}
+                  >
+                    {order.payment_status.charAt(0) + order.payment_status.slice(1).toLowerCase()}
+                  </Badge>
                 </div>
                 <CardDescription className="flex items-center gap-2">
                   <span>{format(new Date(order.created_at), 'MMM d, yyyy')}</span>
-                  <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full">
-                    {order.type === 'subscription' ? 'Subscription' : 'One-time Purchase'}
-                  </span>
+                  <Badge variant="outline">
+                    {order.order_type === 'SUBSCRIPTION' ? 'Subscription' : 'One-time Purchase'}
+                  </Badge>
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -106,7 +170,11 @@ export default function OrdersPage() {
                   </p>
                   <p className="text-sm">
                     <span className="font-medium">Amount:</span>{" "}
-                    ${order.amount.toFixed(2)}
+                    ${parseFloat(order.price).toFixed(2)}
+                  </p>
+                  <p className="text-sm">
+                    <span className="font-medium">Transaction ID:</span>{" "}
+                    {order.transaction_id}
                   </p>
                 </div>
               </CardContent>
@@ -116,4 +184,4 @@ export default function OrdersPage() {
       )}
     </DashboardLayout>
   )
-} 
+}
