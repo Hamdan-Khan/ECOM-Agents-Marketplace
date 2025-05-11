@@ -1,4 +1,5 @@
 "use client";
+import { Toast } from "@/components/ui/toast";
 import { AuthProvider } from "@/contexts/auth-context";
 import { CartProvider } from "@/contexts/cart-context";
 

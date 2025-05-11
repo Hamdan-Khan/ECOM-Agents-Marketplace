@@ -25,11 +25,27 @@ export default function AdminPage() {
   const { toast } = useToast()
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
+    const fetchStats = async () => {      try {
         setLoading(true)
-        const data = await apiGet<AdminStats>("/admin/stats")
-        setStats(data)
+        // Fetch all required data in parallel
+        const [usersData, agentsData, ordersData, paymentsData] = await Promise.all([
+          apiGet<{ total: number }>("/users"),
+          apiGet<{ total: number }>("/agents"),
+          apiGet<{ total: number }>("/orders"),
+          apiGet<any[]>("/payments"),
+        ])
+
+        // Calculate total revenue from payments
+        const totalRevenue = paymentsData.reduce((sum, payment) => {
+          return sum + (payment.amount || 0)
+        }, 0)
+
+        setStats({
+          totalUsers: usersData.total || 0,
+          totalAgents: agentsData.total || 0,
+          totalOrders: ordersData.total || 0,
+          totalRevenue
+        })
       } catch (error: any) {
         toast({
           title: "Error",

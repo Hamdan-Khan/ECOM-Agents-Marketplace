@@ -36,11 +36,37 @@ async function handleResponse<T>(res: Response): Promise<T> {
     return null as T;
   }
 
+  // For DELETE requests that are successful, return null
+  if (res.status === 200 && res.headers.get('content-length') === '0') {
+    return null as T;
+  }
+
+  // Check if there's any content to parse
+  const contentType = res.headers.get('content-type');
   let data;
-  try {
-    data = await res.json();
-  } catch {
-    data = await res.text();
+
+  if (contentType && contentType.includes('application/json')) {
+    try {
+      data = await res.json();
+    } catch (e) {
+      console.warn('Failed to parse JSON response:', e);
+      data = null;
+    }
+  } else {
+    try {
+      data = await res.text();
+      // Try to parse text as JSON in case content-type is incorrect
+      if (data) {
+        try {
+          data = JSON.parse(data);
+        } catch {
+          // Keep as text if not JSON
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to read response text:', e);
+      data = null;
+    }
   }
 
   if (!res.ok) {
@@ -56,9 +82,9 @@ async function handleResponse<T>(res: Response): Promise<T> {
     }
 
     // Handle API error structure
-    const errorMessage = typeof data === 'object' ? 
+    const errorMessage = data && typeof data === 'object' ? 
       data.message || data.error || 'Unknown error' :
-      data;
+      data || 'Unknown error';
 
     throw {
       message: errorMessage,
@@ -66,6 +92,7 @@ async function handleResponse<T>(res: Response): Promise<T> {
       data: data
     };
   }
+  
   return data;
 }
 
@@ -176,6 +203,34 @@ export async function apiPut<T>(
     const res = await fetch(`${API_BASE_URL}${path}`, {
       ...options,
       method: "PUT",
+      headers,
+      body: JSON.stringify(body),
+      mode: "cors",
+    });
+
+    return handleResponse<T>(res);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error("Failed to update data");
+  }
+}
+
+export async function apiPatch<T>(
+  path: string,
+  body: any,
+  options: RequestInit = {}
+): Promise<T> {
+  const headers = {
+    ...getAuthHeaders(),
+    ...(options.headers || {}),
+  };
+
+  try {
+    const res = await fetch(`${API_BASE_URL}${path}`, {
+      ...options,
+      method: "PATCH",
       headers,
       body: JSON.stringify(body),
       mode: "cors",
