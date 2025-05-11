@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { Plus } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export interface Agent {
@@ -58,9 +59,12 @@ export default function MyAgentsPage() {
           <CardHeader>
             <CardTitle>No Agents Found</CardTitle>
             <CardDescription>
-              You haven't created any agents yet. Click the button above to
-              create your first agent.
+              You don't own any agents yet. Click this button to browse and buy
+              your first agent.
             </CardDescription>
+            <Link href="/agents">
+              <Button>Browse Agents</Button>
+            </Link>
           </CardHeader>
         </Card>
       ) : (
