@@ -1,7 +1,6 @@
 "use client";
 
 import Footer from "@/components/footer";
-import Navbar from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -170,7 +169,6 @@ export default function TokensPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
       <main className="flex-grow container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-2">Token Management</h1>
         <p className="text-muted-foreground mb-8">

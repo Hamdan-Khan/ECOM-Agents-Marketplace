@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import type React from "react";
 import "./globals.css";
 
+import Navbar from "@/components/navbar";
 import Providers from "./Providers";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -27,7 +28,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Providers>{children}</Providers>
+          <Providers>
+            <Navbar />
+            {children}
+          </Providers>
         </ThemeProvider>
       </body>
     </html>

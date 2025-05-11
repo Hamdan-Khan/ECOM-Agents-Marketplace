@@ -1,7 +1,6 @@
 "use client";
 
 import Footer from "@/components/footer";
-import Navbar from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -31,7 +30,6 @@ export default function OrderConfirmationPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="max-w-md mx-auto">
           <Card>

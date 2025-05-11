@@ -1,7 +1,6 @@
 "use client";
 
 import Footer from "@/components/footer";
-import Navbar from "@/components/navbar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -44,7 +43,6 @@ export default function AgentDetailPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
       <main className="flex-grow">
         <div className="container mx-auto px-4 py-8">
           {isLoading ? (

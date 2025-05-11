@@ -1,7 +1,6 @@
 "use client";
 
 import Footer from "@/components/footer";
-import Navbar from "@/components/navbar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,13 +41,12 @@ export default function AgentsPage() {
   const [priceRange, setPriceRange] = useState({ min: 0, max: 1000 });
 
   useEffect(() => {
-
-    setIsLoading(true)
-    setError("")
+    setIsLoading(true);
+    setError("");
     apiGet<any>("/agents")
       .then((data) => {
-        setAgents(data.items || [])
-        setIsLoading(false)
+        setAgents(data.items || []);
+        setIsLoading(false);
       })
       .catch((err) => {
         setError(err?.message || "Failed to load agents.");
@@ -75,7 +73,6 @@ export default function AgentsPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
       <main className="flex-grow">
         <div className="container mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold mb-8">AI Agents Catalog</h1>
