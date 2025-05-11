@@ -108,7 +108,7 @@ export default function AgentsPage() {
                   <SelectContent>
                     {categories.map((category) => (
                       <SelectItem key={category} value={category}>
-                        {category}
+                        {category.replaceAll("_", " ")}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -176,7 +176,9 @@ export default function AgentsPage() {
                 <Card key={agent.id}>
                   <CardHeader>
                     <CardTitle>{agent.name}</CardTitle>
-                    <Badge>{agent.category}</Badge>
+                    <Badge className="max-w-max">
+                      {agent.category.replaceAll("_", " ")}
+                    </Badge>
                   </CardHeader>
                   <CardContent>
                     <p className="mb-2 text-gray-700">{agent.description}</p>
