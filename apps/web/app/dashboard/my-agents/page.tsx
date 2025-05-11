@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { Plus } from "lucide-react";
 import Link from "next/link";
+import { apiGet, apiPost, } from "@/services/api";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -121,7 +122,7 @@ export default function MyAgentsPage() {
         <h1 className="text-3xl font-bold">My Purchased Agents</h1>
       </div>
 
-      {user.owned_agents.length === 0 ? (
+      {user?.owned_agents.length === 0 ? (
         <Card>
           <CardHeader>
             <CardTitle>No Agents Found</CardTitle>
@@ -135,7 +136,7 @@ export default function MyAgentsPage() {
         </Card>
       ) : (
         <div className="space-y-4">
-          {user.owned_agents.map((agent) => (
+          {user?.owned_agents.map((agent) => (
             <Card key={agent.id}>
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
