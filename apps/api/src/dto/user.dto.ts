@@ -1,4 +1,5 @@
 // Import the enum from the entity
+import { AgentEntity } from 'src/database/entities/agent.entity';
 import { UserRole } from 'src/database/entities/user.entity';
 
 // Base DTO with common properties
@@ -27,6 +28,7 @@ export class UpdateUserDto {
 export class UserResponseDto extends BaseUserDto {
   id: string;
   role: UserRole;
+  owned_agents: AgentEntity[];
   token_balance: number;
   created_at: Date;
   updated_at: Date;

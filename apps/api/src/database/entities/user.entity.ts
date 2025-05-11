@@ -2,6 +2,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
   TableInheritance,
@@ -46,6 +48,20 @@ export class UserEntity {
 
   @OneToMany(() => AgentEntity, (aiAgent) => aiAgent.created_by)
   agents: AgentEntity[];
+
+  @ManyToMany(() => AgentEntity)
+  @JoinTable({
+    name: 'user_owned_agents',
+    joinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'agent_id',
+      referencedColumnName: 'id',
+    },
+  })
+  owned_agents: AgentEntity[];
 
   @OneToMany(() => OrderEntity, (order) => order.user)
   orders: OrderEntity[];

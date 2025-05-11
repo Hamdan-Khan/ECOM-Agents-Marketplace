@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useCart } from "@/contexts/cart-context";
+import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { Trash2 } from "lucide-react";
 import Link from "next/link";
@@ -22,10 +23,9 @@ export default function CartPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleCheckout = () => {
-    // Check if user is logged in
-    const user = localStorage.getItem("user");
     if (!user) {
       toast({
         title: "Authentication required",

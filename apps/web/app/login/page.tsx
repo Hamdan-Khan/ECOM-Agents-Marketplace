@@ -70,8 +70,15 @@ export default function LoginPage() {
   };
 
   if (user) {
-    router.push("/dashboard");
-    return null;
+    // router.push("/dashboard");
+    return (
+      <div>
+        Already logged in
+        <Link href="/dashboard">
+          <button>Go to dashboard</button>
+        </Link>
+      </div>
+    );
   }
 
   return (

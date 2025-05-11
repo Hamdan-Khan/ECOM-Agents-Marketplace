@@ -47,7 +47,14 @@ export class UserService {
     });
 
     const savedUser = await this.userRepository.save(newUser);
-    return this.mapToResponseDto(savedUser);
+
+    // Fetch the user with relations to return complete data
+    const userWithRelations = await this.userRepository.findOne({
+      where: { id: savedUser.id },
+      relations: ['owned_agents'],
+    });
+
+    return this.mapToResponseDto(userWithRelations!);
   }
 
   async login(
@@ -55,9 +62,10 @@ export class UserService {
   ): Promise<{ user: UserResponseDto; token: string }> {
     const { email, password } = loginUserDto;
 
-    // Find user by email
+    // Find user by email with relations
     const user = await this.userRepository.findOne({
       where: { email },
+      relations: ['owned_agents'],
     });
 
     if (!user) {
@@ -107,6 +115,7 @@ export class UserService {
       skip: (page - 1) * limit,
       take: limit,
       order: { created_at: 'DESC' },
+      relations: ['owned_agents'], // Load owned_agents relation
     });
 
     const pages = Math.ceil(total / limit);
@@ -123,6 +132,7 @@ export class UserService {
   async findOne(id: string): Promise<UserResponseDto> {
     const user = await this.userRepository.findOne({
       where: { id },
+      relations: ['owned_agents'], // Load owned_agents relation
     });
 
     if (!user) {
@@ -131,10 +141,12 @@ export class UserService {
 
     return this.mapToResponseDto(user);
   }
+
   async findUserByEmail(email: string) {
     try {
       const user = await this.userRepository.findOne({
         where: { email },
+        relations: ['owned_agents'], // Load owned_agents relation
       });
       return user;
     } catch (error) {
@@ -155,6 +167,7 @@ export class UserService {
 
     const user = await this.userRepository.findOne({
       where: { id },
+      relations: ['owned_agents'], // Load owned_agents relation
     });
 
     if (!user) {
@@ -184,12 +197,19 @@ export class UserService {
     Object.assign(user, updateUserDto);
     const updatedUser = await this.userRepository.save(user);
 
-    return this.mapToResponseDto(updatedUser);
+    // Fetch updated user with relations to ensure we have the latest data
+    const refreshedUser = await this.userRepository.findOne({
+      where: { id: updatedUser.id },
+      relations: ['owned_agents'],
+    });
+
+    return this.mapToResponseDto(refreshedUser!);
   }
 
   async remove(id: string): Promise<void> {
     const user = await this.userRepository.findOne({
       where: { id },
+      relations: ['owned_agents'], // Load owned_agents relation before deletion
     });
 
     if (!user) {
@@ -207,13 +227,22 @@ export class UserService {
 
   // Helper method to map entity to response DTO
   private mapToResponseDto(user: UserEntity): UserResponseDto {
-    const { id, name, email, role, token_balance, created_at, updated_at } =
-      user;
+    const {
+      id,
+      name,
+      email,
+      role,
+      token_balance,
+      created_at,
+      updated_at,
+      owned_agents,
+    } = user;
     return {
       id,
       name,
       email,
       role,
+      owned_agents: owned_agents || [], // Ensure it's never undefined
       token_balance,
       created_at,
       updated_at,

@@ -1,11 +1,17 @@
 import { Module } from '@nestjs/common';
-import { AppController } from '../controller/stripe.controller';
-import { StripeService  } from '../service/stripe.service';
-import { ConfigModule } from '@nestjs/config'; // Import ConfigModule to load .env variables
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AgentEntity } from 'src/database/entities/agent.entity';
+import { UserEntity } from 'src/database/entities/user.entity';
+import { StripeController } from '../controller/stripe.controller';
+import { StripeService } from '../service/stripe.service';
 
 @Module({
-  imports: [ConfigModule.forRoot()], // Load .env variables
-  controllers: [AppController],
-  providers: [StripeService ],
+  imports: [
+    TypeOrmModule.forFeature([UserEntity, AgentEntity]),
+    ConfigModule.forRoot(),
+  ],
+  controllers: [StripeController],
+  providers: [StripeService],
 })
 export class StripeModule {}

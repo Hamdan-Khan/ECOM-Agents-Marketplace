@@ -10,8 +10,7 @@ import { OrderEntity } from './order.entity';
 import { UserEntity } from './user.entity';
 
 export enum PaymentGateway {
-  JAZZCASH = 'JAZZCASH',
-  PAYPRO = 'PAYPRO',
+  STRIPE = 'STRIPE',
 }
 
 export enum PaymentStatus {
