@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { apiGet, apiPost } from '@/services/api'
+import { apiGet } from '@/services/api'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
 export default function PaymentSuccessPage() {
@@ -12,20 +12,21 @@ export default function PaymentSuccessPage() {
   const [error, setError] = useState<string>('')
 
   useEffect(() => {
-  const fetchSession = async () => {
-    if (!sessionId) return;
-    
-    try {
-      // Append the session_id to the URL as a query parameter
-      const response = await apiGet(`/pay/success/checkout/session?session_id=${sessionId}`);
-      setSession(response.session);
-    } catch (err: any) {
-      setError(err?.message || 'Failed to fetch session details');
+    const fetchSession = async () => {
+      if (!sessionId) return
+      try {
+        const response = await apiGet(`/pay/success/checkout/session?session_id=${sessionId}`)
+        setSession(response.session)
+      } catch (err: any) {
+        setError(err?.message || 'Failed to fetch session details')
+      }
     }
-  };
 
     fetchSession()
   }, [sessionId])
+
+  const formatAmount = (amount: number, currency: string) =>
+    `${(amount / 100).toFixed(2)} ${currency.toUpperCase()}`
 
   return (
     <div className="max-w-2xl mx-auto mt-20 p-6 border rounded-lg shadow-sm">
@@ -38,14 +39,16 @@ export default function PaymentSuccessPage() {
       )}
 
       {session ? (
-        <pre className="text-sm bg-gray-100 p-4 rounded overflow-x-auto">
-          {JSON.stringify(session, null, 2)}
-        </pre>
+        <div className="space-y-4">
+          <p><strong>Customer:</strong> {session.customer_details?.name || 'N/A'}</p>
+          <p><strong>Email:</strong> {session.customer_details?.email || 'N/A'}</p>
+          <p><strong>Payment Status:</strong> {session.payment_status}</p>
+          <p><strong>Amount Paid:</strong> {formatAmount(session.amount_total, session.currency)}</p>
+          <p><strong>Payment Intent ID:</strong> {session.payment_intent}</p>
+        </div>
       ) : !error ? (
         <p>Loading payment details...</p>
       ) : null}
     </div>
   )
 }
-
-
