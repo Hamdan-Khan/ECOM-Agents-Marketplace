@@ -1,43 +1,51 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 // Mock data for featured agents
 // This will be replaced with API calls in the future
 const mockFeaturedAgents = [
   {
-    id: 1,
+    id: "152e2a16-7e2d-432d-afae-4353acb0b485",
     name: "TextAnalyzer Pro",
-    description: "Advanced NLP tool for sentiment analysis and text classification.",
+    description:
+      "Advanced NLP tool for sentiment analysis and text classification.",
     category: "NLP",
     price: 49.99,
     subscription_price: 9.99,
   },
   {
-    id: 2,
+    id: "f494ed88-c0fb-40cb-8242-913dfaef7e79",
     name: "ImageVision AI",
-    description: "Computer vision tool for object detection and image classification.",
+    description:
+      "Computer vision tool for object detection and image classification.",
     category: "Computer Vision",
     price: 79.99,
     subscription_price: 14.99,
   },
   {
-    id: 3,
+    id: "ac864033-3846-4389-ae2b-5b3877031475",
     name: "DataPredictor",
     description: "Predictive analytics tool for forecasting business metrics.",
     category: "Predictive Analytics",
     price: 99.99,
     subscription_price: 19.99,
   },
-]
+];
 
 export default function FeaturedAgents() {
-  const [featuredAgents, setFeaturedAgents] = useState(mockFeaturedAgents)
-  const [isLoading, setIsLoading] = useState(true)
+  const [featuredAgents, setFeaturedAgents] = useState(mockFeaturedAgents);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Simulate API call to fetch featured agents
   useEffect(() => {
@@ -49,13 +57,13 @@ export default function FeaturedAgents() {
 
       // For now, we'll use the mock data and simulate a loading delay
       setTimeout(() => {
-        setFeaturedAgents(mockFeaturedAgents)
-        setIsLoading(false)
-      }, 500)
-    }
+        setFeaturedAgents(mockFeaturedAgents);
+        setIsLoading(false);
+      }, 500);
+    };
 
-    fetchAgents()
-  }, [])
+    fetchAgents();
+  }, []);
 
   if (isLoading) {
     return (
@@ -76,7 +84,7 @@ export default function FeaturedAgents() {
           </Card>
         ))}
       </div>
-    )
+    );
   }
 
   return (
@@ -92,7 +100,9 @@ export default function FeaturedAgents() {
             <div className="mt-4 flex items-center justify-between">
               <div>
                 <p className="font-semibold">${agent.price.toFixed(2)}</p>
-                <p className="text-sm text-muted-foreground">or ${agent.subscription_price.toFixed(2)}/month</p>
+                <p className="text-sm text-muted-foreground">
+                  or ${agent.subscription_price.toFixed(2)}/month
+                </p>
               </div>
             </div>
           </CardContent>
@@ -104,5 +114,5 @@ export default function FeaturedAgents() {
         </Card>
       ))}
     </div>
-  )
+  );
 }

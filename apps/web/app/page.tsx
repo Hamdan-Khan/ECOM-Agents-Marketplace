@@ -31,7 +31,7 @@ export default function Home() {
                   asChild
                   size="lg"
                   variant="outline"
-                  className="border-white text-white hover:bg-white/10"
+                  className="bg-white text-blue-700 hover:bg-gray-100"
                 >
                   <Link href="/register">Sign Up</Link>
                 </Button>
